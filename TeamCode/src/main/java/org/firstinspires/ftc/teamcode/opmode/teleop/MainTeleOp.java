@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,9 +9,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 
+@Config
 @TeleOp(name = "Main TeleOp")
 public class MainTeleOp extends OpMode {
     private Robot robot;
+    public static double turretPositionTesting = 0.5;
+    public static double flywheelSpeedTesting = 900;
+    boolean testing = false;
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
@@ -33,6 +38,14 @@ public class MainTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        if(gamepad2.leftBumperWasReleased()){
+            //toggle testing, which switches from dynamic aiming and power to static aiming and power,
+            // for testing and if the robot break
+            testing = !testing;
+        }
+        robot.testing = testing;
+        robot.turretPositionTesting = turretPositionTesting;
+        robot.flywheelSpeedTesting = flywheelSpeedTesting;
         robot.update(aim, sotm, alliance);
         robot.addTelemetry();
         telemetry.update();

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.subsystems;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.*;
@@ -28,6 +29,8 @@ public class Turret {
     public void init(){
         leftTurret = hwmap.get(ServoImplEx.class, "leftTurret");
         rightTurret = hwmap.get(ServoImplEx.class, "rightTurret");
+        leftTurret.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        rightTurret.setPwmRange(new PwmControl.PwmRange(500, 2500));
     }
 
     public void initLoop(){
@@ -80,7 +83,7 @@ public class Turret {
         }
         turretAngle = ((turretAngle - robotAngleUnsigned) % 360 + 360) % 360;
 
-        double servoPosition = turretBackCenterPos - (turretAngle - 180)/360;
+        double servoPosition = turretBackCenterPos - (turretAngle - 180)/turretRangeDeg;
 
         if (servoPosition < 0){
             servoPosition += 1;
@@ -94,7 +97,11 @@ public class Turret {
 
     public void update(boolean aim){
         aimTurret = aim;
-        if(aimTurret){
+        if(aimTurret && robot.testing){
+            turretPos = robot.turretPositionTesting;
+            leftTurret.setPosition(turretPos);
+            rightTurret.setPosition(turretPos);
+        }else if(aimTurret){
             robotPos = robot.dt.getRobotPos();
             robotAngleUnsigned = robot.dt.getRobotAngle();
             turretPos = calculateTurretServoPosition(robotPos, robotAngleUnsigned);

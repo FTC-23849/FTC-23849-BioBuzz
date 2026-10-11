@@ -82,6 +82,10 @@ public class Robot {
         turret.stop();
     }
 
+    public boolean testing = false;
+    public double turretPositionTesting = 0;
+    public double flywheelSpeedTesting = 0;
+
     public void update(boolean aim, boolean sotm, String Alliance){
         loopTime = loopTimer.milliseconds();
         loopTimer.reset();

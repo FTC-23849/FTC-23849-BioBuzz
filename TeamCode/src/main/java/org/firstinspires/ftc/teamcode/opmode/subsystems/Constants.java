@@ -35,4 +35,5 @@ public class Constants {
 
     // Turret
     public static double turretBackCenterPos = 0.5;
+    public static double turretRangeDeg = 350;
 }

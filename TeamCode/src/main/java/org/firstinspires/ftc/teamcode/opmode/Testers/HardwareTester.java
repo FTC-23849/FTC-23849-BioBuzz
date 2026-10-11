@@ -56,7 +56,11 @@ public class HardwareTester extends OpMode {
             servos[i] = hardwareMap.get(ServoImplEx.class, SERVO_NAMES[i]);
             //last commanded position, not the real position; just a starting point for the target
             double lastPos = servos[i].getPosition();
-            servoTargets[i] = Double.isNaN(lastPos) ? 0.5 : lastPos;
+            if (Double.isNaN(lastPos)) {
+                servoTargets[i] = 0.5;
+            } else {
+                servoTargets[i] = lastPos;
+            }
         }
     }
 
@@ -77,7 +81,11 @@ public class HardwareTester extends OpMode {
 
         //motors: only the selected one runs, and only while the stick is held
         for (int i = 0; i < motors.length; i++) {
-            motors[i].setPower(i == selected ? -gamepad1.left_stick_y : 0);
+            if (i == selected) {
+                motors[i].setPower(-gamepad1.left_stick_y);
+            } else {
+                motors[i].setPower(0);
+            }
         }
         if (selected < motors.length && gamepad1.xWasPressed()) {
             DcMotor.RunMode mode = motors[selected].getMode();
@@ -122,16 +130,28 @@ public class HardwareTester extends OpMode {
 
         telemetry.addLine("--- Motors (encoder ticks, ticks/s, power) ---");
         for (int i = 0; i < motors.length; i++) {
+            String marker = " ";
+            if (i == selected) {
+                marker = ">";
+            }
             telemetry.addLine(String.format("%s %s: pos %d | vel %.0f | pwr %.2f",
-                    i == selected ? ">" : " ", MOTOR_NAMES[i],
+                    marker, MOTOR_NAMES[i],
                     motors[i].getCurrentPosition(), motors[i].getVelocity(), motors[i].getPower()));
         }
 
         telemetry.addLine("--- Servos (target, state) ---");
         for (int i = 0; i < servos.length; i++) {
+            String marker = " ";
+            if (i + motors.length == selected) {
+                marker = ">";
+            }
+            String state = "off";
+            if (servoEnabled[i]) {
+                state = "ON";
+            }
             telemetry.addLine(String.format("%s %s: %.3f | %s",
-                    i + motors.length == selected ? ">" : " ", SERVO_NAMES[i],
-                    servoTargets[i], servoEnabled[i] ? "ON" : "off"));
+                    marker, SERVO_NAMES[i],
+                    servoTargets[i], state));
         }
 
         Pose2D pos = dt.getRobotPos();

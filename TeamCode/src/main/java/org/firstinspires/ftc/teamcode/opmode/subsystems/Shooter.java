@@ -99,7 +99,11 @@ public class Shooter {
         currVelocity = (topShooter.getVelocity() + bottomShooter.getVelocity())/2;
 
         if(aim){
-            targetVelocity = calculateShotSpeed(targetDist);
+            if(robot.testing){
+                targetVelocity = robot.flywheelSpeedTesting;
+            }else{
+                targetVelocity = calculateShotSpeed(targetDist);
+            }
             flywheelPIDF.setTargetVelocity(targetVelocity);
             double PIDOutputPower = flywheelPIDF.update(currVelocity);
             topShooter.setPower(PIDOutputPower);
