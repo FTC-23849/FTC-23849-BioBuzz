@@ -97,7 +97,7 @@ public class Turret {
 
     public void update(boolean aim){
         aimTurret = aim;
-        if(aimTurret && robot.testing){
+        if(aimTurret && robot.testingTurret){
             turretPos = robot.turretPositionTesting;
             leftTurret.setPosition(turretPos);
             rightTurret.setPosition(turretPos);

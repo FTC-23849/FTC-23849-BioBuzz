@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmode.teleop;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.opmode.subsystems.Constants;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 
@@ -15,7 +16,10 @@ public class MainTeleOp extends OpMode {
     private Robot robot;
     public static double turretPositionTesting = 0.5;
     public static double flywheelSpeedTesting = 900;
-    boolean testing = false;
+    public static double hoodPositionTesting = 0.25;
+    boolean testingShooter = false;
+    boolean testingTurret = false;
+    ElapsedTime releaseTimer = new ElapsedTime();
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
@@ -38,12 +42,19 @@ public class MainTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        //toggle testing, which switches from dynamic aiming and power to static aiming and power,
+        // for testing and if the robot breaks
         if(gamepad2.leftBumperWasReleased()){
-            //toggle testing, which switches from dynamic aiming and power to static aiming and power,
-            // for testing and if the robot break
-            testing = !testing;
+            //locks shooter (flywheel speed) and hood
+            testingShooter = !testingShooter;
         }
-        robot.testing = testing;
+        if(gamepad2.rightBumperWasReleased()){
+            //locks turret
+            testingTurret = !testingTurret;
+        }
+        robot.testingShooter = testingShooter;
+        robot.testingTurret = testingTurret;
+        robot.hoodPositionTesting = hoodPositionTesting;
         robot.turretPositionTesting = turretPositionTesting;
         robot.flywheelSpeedTesting = flywheelSpeedTesting;
         robot.update(aim, sotm, alliance);
@@ -75,11 +86,15 @@ public class MainTeleOp extends OpMode {
             robot.intake.dropdownUp();
             robot.intake.stopIntake();
             robot.intake.flowerIntakeUp();
-            robot.shooter.block();
+            //only close the stopper once the delay since the last release has passed
+            if(releaseTimer.seconds() > Constants.blockDelay){
+                robot.shooter.block();
+            }
         }
 
         if((gamepad1.left_trigger > 0.7) && aim){
             robot.shooter.release();
+            releaseTimer.reset();
         }
 
         if(gamepad1.y){

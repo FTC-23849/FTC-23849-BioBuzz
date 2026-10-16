@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -19,7 +20,7 @@ public class Shooter {
     public ServoImplEx hood, stopper;
     Robot robot;
     public static double[] shotDistances  = {10,20,30,40,50,60,70,80,90,100};
-    public static double[] shotVelocities = {1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800};
+    public static double[] shotVelocities = {00,00,00,00,00,00,00,00,00,000};
     PIDFController flywheelPIDF;
     double targetX = 0;
     double targetY = 0;
@@ -74,7 +75,8 @@ public class Shooter {
         hood = hwmap.get(ServoImplEx.class, "hood");
         stopper = hwmap.get(ServoImplEx.class, "stopper");
         flywheelPIDF = new PIDFController(0, kP, kI, kD, kS, kV);
-        hood.setPosition(hoodDown);
+        topShooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        hood.setPosition(hoodUp);
     }
 
     public void initLoop(){
@@ -98,8 +100,15 @@ public class Shooter {
         targetDist = calculateTargetDist(robot.dt.getRobotPos());
         currVelocity = (topShooter.getVelocity() + bottomShooter.getVelocity())/2;
 
+        //hood is tunable from the dashboard while shooter testing is on, otherwise it stays up
+        if(robot.testingShooter){
+            hood.setPosition(robot.hoodPositionTesting);
+        }else{
+            hood.setPosition(hoodUp);
+        }
+
         if(aim){
-            if(robot.testing){
+            if(robot.testingShooter){
                 targetVelocity = robot.flywheelSpeedTesting;
             }else{
                 targetVelocity = calculateShotSpeed(targetDist);

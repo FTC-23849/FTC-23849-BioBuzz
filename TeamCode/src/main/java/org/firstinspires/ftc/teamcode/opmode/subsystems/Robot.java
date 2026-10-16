@@ -82,7 +82,9 @@ public class Robot {
         turret.stop();
     }
 
-    public boolean testing = false;
+    public boolean testingShooter = false;
+    public boolean testingTurret = false;
+    public double hoodPositionTesting = hoodDown;
     public double turretPositionTesting = 0;
     public double flywheelSpeedTesting = 0;
 

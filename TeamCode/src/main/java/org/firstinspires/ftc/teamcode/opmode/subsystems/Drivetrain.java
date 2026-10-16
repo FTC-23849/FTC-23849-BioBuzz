@@ -93,7 +93,7 @@ public class Drivetrain {
         RB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pinpoint = hwmap.get(GoBildaPinpointDriver.class, "pinpoint");
         //TODO: set offsets/ encoder resolution
-        pinpoint.setOffsets(0,0, DistanceUnit.MM);
+        pinpoint.setOffsets(0,32.4111, DistanceUnit.MM);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         pinpoint.setEncoderResolution(19.970472542, DistanceUnit.MM);
     }
