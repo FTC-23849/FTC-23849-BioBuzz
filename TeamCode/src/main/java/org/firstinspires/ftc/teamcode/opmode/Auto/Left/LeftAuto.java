@@ -7,10 +7,13 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.Auto.pedro.Constants;
 
 import static com.pedropathing.api.Paths.*;
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
@@ -22,7 +25,14 @@ import com.pedropathing.paths.Path;
 @Autonomous
 public class LeftAuto extends OpMode {
 
+    // Other Constants
+    double initialWaitTime = 5000;
+    double shootingDelay = 500;
+
+    // Pedro
+
     private Follower follower;
+    private Intake intake;
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     private final Pose startPos = poseFactory.of(64.5, 132, 90);
@@ -56,10 +66,47 @@ public class LeftAuto extends OpMode {
 
     private Command autoRoutine() {
         return sequential(
-                follow(follower, flower1()),
-                follow(follower, reverseFlower1()),
-                follow(follower, flower2()),
-                follow(follower, scoreFlower2())
+                waitMs(initialWaitTime),
+                intake.transferOn(),
+                waitMs(shootingDelay),
+                parallel(
+                        intake.closeGate(),
+                        follow(follower, flower1()),
+                        sequential(
+                                waitMs(200),
+                                intake.flowerDown()
+                        )
+                ),
+                parallel(
+                        follow(follower, reverseFlower1()),
+                        sequential(
+                                waitMs(200),
+                                intake.flowerUp(),
+                                intake.intakeUp(),
+                                intake.intakeOff()
+                        )
+                ),
+                intake.transferOn(),
+                waitMs(shootingDelay),
+                parallel(
+                        intake.closeGate(),
+                        follow(follower, flower2()),
+                        sequential(
+                                waitMs(200),
+                                intake.flowerDown()
+                        )
+                ),
+                parallel(
+                        follow(follower, scoreFlower2()),
+                        sequential(
+                                waitMs(200),
+                                intake.flowerUp(),
+                                intake.intakeUp(),
+                                intake.intakeOff()
+                        )
+                ),
+                intake.transferOn(),
+                waitMs(shootingDelay)
         );
     }
 

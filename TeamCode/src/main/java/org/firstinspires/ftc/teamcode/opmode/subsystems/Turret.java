@@ -163,4 +163,24 @@ public class Turret {
             rightTurret.setPosition(turretBackCenterPos);
         }
     }
+
+    public void update(double robotX, double robotY, double robotAngleUnsigned){
+        aimTurret = true;
+        if(aimTurret && robot.testingTurret){
+            turretPos = robot.turretPositionTesting;
+            leftTurret.setPosition(turretPos);
+            rightTurret.setPosition(turretPos);
+        }else if(aimTurret){
+            robotPos = robot.dt.getRobotPos();
+            robotAngleUnsigned = robot.dt.getRobotAngle();
+            turretPos = calculateTurretServoPositionAuto(robotX, robotY, robotAngleUnsigned);
+            leftTurret.setPosition(turretPos);
+            rightTurret.setPosition(turretPos);
+        }else{
+            //turret is centered, so it points straight backward relative to the robot
+            turretAngle = 180;
+            leftTurret.setPosition(turretBackCenterPos);
+            rightTurret.setPosition(turretBackCenterPos);
+        }
+    }
 }
