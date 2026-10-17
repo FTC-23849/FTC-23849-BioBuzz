@@ -107,6 +107,8 @@ public class Robot {
 
     public void addTelemetry(){
         telemetry.addData("Loop time (ms)", loopTime);
+        telemetry.addData("Power Adjustment", powerAdjustment);
+        telemetry.addData("Turret Adjustment", turretAdjustment);
         telemetry.addData("Alliance", alliance);
         telemetry.addData("Aim", aim);
         telemetry.addData("Robot x", dt.getRobotPos().getX(DistanceUnit.INCH));

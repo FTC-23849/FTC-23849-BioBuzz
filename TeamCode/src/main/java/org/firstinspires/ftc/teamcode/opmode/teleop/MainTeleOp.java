@@ -21,8 +21,8 @@ public class MainTeleOp extends OpMode {
     public static boolean showServoStates = false;
     boolean testingShooter = false;
     boolean testingTurret = false;
-    double turretAdjustment = 0;
-    double powerAdjustment = 20;
+    public static double turretAdjustment = 0;
+    public static double powerAdjustment = 40;
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
@@ -143,8 +143,6 @@ public class MainTeleOp extends OpMode {
         }
         //TODO: additional buttons like locked button / button remapping
         //tbd controls, button for locked pos?
-        telemetry.addData("Power Adjustment", powerAdjustment);
-        telemetry.addData("Turret Adjustment", turretAdjustment);
     }
 
     @Override

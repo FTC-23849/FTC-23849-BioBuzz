@@ -43,17 +43,17 @@ public class RightAuto extends OpMode {
 
     private final Pose startPos = poseFactory.of(53.5, 9, -90);
     private final Pose path1Start = poseFactory.of(53.5, 9, -90);
-    private final Pose path1 = poseFactory.of(15, 47.0629, 180);
+    private final Pose path1 = poseFactory.of(16, 47.0629, 180);
     private final Pose path1Control1 = poseFactory.of(53.5, 35, 0);
     private final Pose path1Control2 = poseFactory.of(35, 48, 0);
     private final Pose point2 = poseFactory.of(53.2737, 20.851, -142.76);
     private final Pose point2Control1 = poseFactory.of(34.074, 45.8355, 0);
     private final Pose point2Control2 = poseFactory.of(45.5268, 14.5605, 0);
-    private final Pose point3 = poseFactory.of(15, 6, -176.4442);
+    private final Pose point3 = poseFactory.of(15, 4, -176.4442);
     private final Pose point3Control1 = poseFactory.of(38.5812, 6.6057, 0);
     private final Pose point4 = poseFactory.of(60, 19.5232, -137.932);
     private final Pose point4Control1 = poseFactory.of(39.4303, 4.6922, 0);
-    private final Pose point5 = poseFactory.of(48., 124, 94.4625);
+    private final Pose point5 = poseFactory.of(48, 125, 94.4625);
     private final Pose point5Control1 = poseFactory.of(62, 133.1585, 0);
     private final Pose point5Control2 = poseFactory.of(48.7034, 103.33, 0);
     private final Pose point6 = poseFactory.of(15, 111.227, 3.7768);
