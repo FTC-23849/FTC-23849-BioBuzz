@@ -5,6 +5,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.powerAdjustmentStep;
+import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.turretAdjustmentStep;
+
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 //testing commit
@@ -18,6 +21,8 @@ public class MainTeleOp extends OpMode {
     public static boolean showServoStates = false;
     boolean testingShooter = false;
     boolean testingTurret = false;
+    double turretAdjustment = 0;
+    double powerAdjustment = 0;
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
@@ -48,6 +53,20 @@ public class MainTeleOp extends OpMode {
         if(gamepad2.rightBumperWasReleased()){
             testingTurret = !testingTurret;
         }
+        if(gamepad2.startWasReleased()){
+            turretAdjustment += turretAdjustmentStep;
+        }
+        if(gamepad2.backWasReleased()){
+            turretAdjustment -= turretAdjustmentStep;
+        }
+        if(gamepad2.dpadUpWasReleased()){
+            powerAdjustment += powerAdjustmentStep;
+        }
+        if(gamepad2.dpadDownWasReleased()){
+            powerAdjustment -= powerAdjustmentStep;
+        }
+        robot.turretAdjustment = turretAdjustment;
+        robot.powerAdjustment = powerAdjustment;
         robot.testingShooter = testingShooter;
         robot.testingTurret = testingTurret;
         robot.hoodPositionTesting = hoodPositionTesting;

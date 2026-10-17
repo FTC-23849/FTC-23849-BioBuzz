@@ -141,6 +141,7 @@ public class Turret {
             servoPosition -= 1;
         }
         servoPosition += turretOffset;
+        servoPosition += robot.turretAdjustment;
 
         return Math.max(rightLimit, Math.min(servoPosition,leftLimit));
     }

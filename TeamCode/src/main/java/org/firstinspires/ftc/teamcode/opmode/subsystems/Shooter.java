@@ -219,7 +219,7 @@ public class Shooter {
             if(robot.testingShooter){
                 targetVelocity = robot.flywheelSpeedTesting;
             }else{
-                targetVelocity = calculateShotSpeed(targetDist);
+                targetVelocity = Math.max(0, calculateShotSpeed(targetDist) + robot.powerAdjustment);
             }
             flywheelPIDF.setTargetVelocity(targetVelocity);
             double PIDOutputPower = flywheelPIDF.update(currVelocity);
@@ -260,7 +260,7 @@ public class Shooter {
             if(robot.testingShooter){
                 targetVelocity = robot.flywheelSpeedTesting;
             }else{
-                targetVelocity = calculateShotSpeed(targetDist);
+                targetVelocity = Math.max(0, calculateShotSpeed(targetDist) + robot.powerAdjustment);
             }
             flywheelPIDF.setTargetVelocity(targetVelocity);
             double PIDOutputPower = flywheelPIDF.update(currVelocity);

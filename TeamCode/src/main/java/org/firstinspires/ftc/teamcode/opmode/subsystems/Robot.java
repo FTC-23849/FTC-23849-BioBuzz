@@ -87,6 +87,8 @@ public class Robot {
     public double hoodPositionTesting = hoodDown;
     public double turretPositionTesting = 0;
     public double flywheelSpeedTesting = 0;
+    public double turretAdjustment = 0;
+    public double powerAdjustment = 0;
 
     public void update(boolean aim, boolean sotm, String Alliance){
         loopTime = loopTimer.milliseconds();
