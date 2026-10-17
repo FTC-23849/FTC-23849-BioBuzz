@@ -235,4 +235,45 @@ public class Shooter {
         velocityError = currVelocity - targetVelocity;
 
     }
+
+    public void update(double robotX, double robotY){
+        //re-read gains every loop so FTC Dashboard edits apply live
+        flywheelPIDF.setPID(kP, kI, kD);
+        flywheelPIDF.setFeedforward(kS, kV);
+
+        refreshShotTable();
+
+        //target and distance are always calculated so they show in telemetry
+        targetDist = calculateTargetDist(robotX, robotY);
+        currVelocity = bottomShooter.getVelocity();
+
+        boolean tableOk = shotTableError == null;
+        if(robot.testingShooter){
+            hood.setPosition(robot.hoodPositionTesting);
+        }else if(tableOk){
+            hood.setPosition(zoneHoods[findZone(targetDist)]);
+        }else{
+            hood.setPosition(hoodUp);
+        }
+
+        if((robot.testingShooter || tableOk)){
+            if(robot.testingShooter){
+                targetVelocity = robot.flywheelSpeedTesting;
+            }else{
+                targetVelocity = calculateShotSpeed(targetDist);
+            }
+            flywheelPIDF.setTargetVelocity(targetVelocity);
+            double PIDOutputPower = flywheelPIDF.update(currVelocity);
+            topShooter.setPower(PIDOutputPower);
+            bottomShooter.setPower(PIDOutputPower);
+        }else{
+            targetVelocity = 0;
+            flywheelPIDF.reset();
+            flywheelPIDF.setTargetVelocity(0);
+            topShooter.setPower(0);
+            bottomShooter.setPower(0);
+        }
+        velocityError = currVelocity - targetVelocity;
+
+    }
 }
