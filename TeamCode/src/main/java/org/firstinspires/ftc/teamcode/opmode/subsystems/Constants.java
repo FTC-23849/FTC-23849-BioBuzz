@@ -11,13 +11,14 @@ public class Constants {
 
     // Intake
     public static double transferSpeed = 1.0;
+    public static double transferSpeedAuto = 0.7;
     public static double intakePower = 1.000;
     public static double reverseIntakePower = -1.000;
     public static double dropDownIntakeDown = 0.83;
-    public static double dropDownIntakeFlower = 0.65;
-    public static double dropDownIntakeUp = 0.650;
+    public static double dropDownIntakeFlower = 0.7;
+    public static double dropDownIntakeUp = 0.63;
     public static double flowerIntakeDown = 0.630;
-    public static double flowerIntakeUp = 0.890;
+    public static double flowerIntakeUp = 0.93;
     // Misc
 
     // Shooter
@@ -35,7 +36,7 @@ public class Constants {
 
 
     // Turret
-    public static double turretBackCenterPos = 0.53;
+    public static double turretBackCenterPos = 0.48;
     public static double turretOffset = 0;
     public static double turretRangeDeg = 350;
     public static double rightLimit = 0.219;

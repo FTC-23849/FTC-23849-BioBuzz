@@ -98,7 +98,7 @@ public class Turret {
         targetX = targetCoords[0];
         targetY = targetCoords[1];
         robotX -= 72;
-        robotX -= 72;
+        robotY -= 72;
 
         turretAngle = Math.toDegrees(Math.atan2(targetY - robotY, targetX - robotX));
         if(turretAngle < 0){

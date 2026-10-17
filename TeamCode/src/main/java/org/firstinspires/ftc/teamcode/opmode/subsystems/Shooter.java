@@ -258,7 +258,7 @@ public class Shooter {
 
         if((robot.testingShooter || tableOk)){
             if(robot.testingShooter){
-                targetVelocity = robot.flywheelSpeedTesting;
+                targetVelocity = robot.flywheelSpeedTesting - 60;
             }else{
                 targetVelocity = calculateShotSpeed(targetDist);
             }
