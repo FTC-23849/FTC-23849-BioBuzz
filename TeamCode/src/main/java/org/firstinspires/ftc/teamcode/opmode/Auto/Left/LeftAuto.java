@@ -28,9 +28,10 @@ import com.pedropathing.paths.Path;
 public class LeftAuto extends OpMode {
 
     // Other Constants
-    double initialWaitTime = 5000;
+    double initialWaitTime = 10000;
+    double shootingStartDelay = 500;
     double shootingDelay = 500;
-    double flowerIntakeDelay = 1000;
+    double flowerDelay = 3000;
 
     private Robot robot;
     private Intake intake;
@@ -41,17 +42,18 @@ public class LeftAuto extends OpMode {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     private final Pose startPos = poseFactory.of(64.5, 132, 90);
-    private final Pose flower1 = poseFactory.of(48, 124, 90);
+    private final Pose flower1 = poseFactory.of(48, 128, 90);
     private final Pose flower1Control1 = poseFactory.of(64.5, 120, 0);
     private final Pose flower1Control2 = poseFactory.of(48, 100, 0);
-    private final Pose reverseFlower1 = poseFactory.of(58, 115, 179.7409);
+    private final Pose reverseFlower1 = poseFactory.of(58, 130, 179.7409);
     private final Pose reverseFlower1Control1 = poseFactory.of(48, 115, 0);
-    private final Pose flower2 = poseFactory.of(15, 48, -178.066);
+    private final Pose flower2 = poseFactory.of(12, 50, -178.066);
     private final Pose flower2Control1 = poseFactory.of(25.6679, 115, 0);
-    private final Pose flower2Control2 = poseFactory.of(35, 48, 0);
-    private final Pose scoreFlower2 = poseFactory.of(58, 115, -178.7932);
+    private final Pose flower2Control2 = poseFactory.of(40, 48, 0);
+    private final Pose scoreFlower2 = poseFactory.of(58, 130, -178.7932);
     private final Pose scoreFlower2Control1 = poseFactory.of(35, 48, 0);
-    private final Pose scoreFlower2Control2 = poseFactory.of(26, 115, 0);
+    private final Pose scoreFlower2Control2 = poseFactory.of(26, 130, 0);
+    private final Pose park = poseFactory.of(15, 115, 0);
 
     public Path flower1() {
         return curve(startPos, flower1Control1, flower1Control2, flower1).constant(flower1);
@@ -69,51 +71,66 @@ public class LeftAuto extends OpMode {
         return curve(flower2, scoreFlower2Control1, scoreFlower2Control2, scoreFlower2).reverseTangent();
     }
 
+    public Path park() {
+        return line(scoreFlower2, park);
+    }
+
     private Command autoRoutine() {
         return sequential(
                 waitMs(initialWaitTime),
                 intake.transferOn(),
                 waitMs(shootingDelay),
                 parallel(
-                        intake.closeGate(),
+                        sequential(
+                                waitMs(200),
+                                intake.closeGate()
+                        ),
                         follow(follower, flower1()),
                         sequential(
                                 waitMs(200),
                                 intake.flowerDown()
                         )
                 ),
-                waitMs(flowerIntakeDelay),
+                waitMs(flowerDelay),
                 parallel(
                         follow(follower, reverseFlower1()),
                         sequential(
                                 waitMs(200),
                                 intake.flowerUp(),
-                                intake.intakeUp(),
-                                intake.intakeOff()
+                                waitMs(200),
+                                intake.intakeDown()//,
+                                //intake.intakeOff()
                         )
                 ),
+                waitMs(shootingStartDelay),
                 intake.transferOn(),
                 waitMs(shootingDelay),
                 parallel(
-                        intake.closeGate(),
+                        sequential(
+                                waitMs(200),
+                                intake.closeGate()
+                        ),
                         follow(follower, flower2()),
                         sequential(
                                 waitMs(200),
                                 intake.flowerDown()
                         )
                 ),
-                waitMs(flowerIntakeDelay),
+                waitMs(flowerDelay),
                 parallel(
                         follow(follower, scoreFlower2()),
                         sequential(
                                 waitMs(200),
                                 intake.flowerUp(),
-                                intake.intakeUp(),
-                                intake.intakeOff()
+                                waitMs(200),
+                                intake.intakeDown()//,
+                                //intake.intakeOff()
                         )
                 ),
+                waitMs(shootingStartDelay),
                 intake.transferOn(),
-                waitMs(shootingDelay)
+                waitMs(shootingDelay),
+                follow(follower, park())
         );
     }
 
@@ -150,15 +167,45 @@ public class LeftAuto extends OpMode {
         Scheduler.execute();
 
         shooter.updateFlywheel(follower.pose().x(), follower.pose().y());
-        shooter.updateTurret(follower.pose().x(), follower.pose().y(), follower.pose().heading());
+        shooter.updateTurret(follower.pose().x(), follower.pose().y(), Math.toDegrees(follower.pose().heading()));
 
-        telemetry.addData("X", follower.pose().x());
-        telemetry.addData("Y", follower.pose().y());
+        double x = follower.pose().x();
+        double y = follower.pose().y();
+
+        // Shooter: what the flywheel/hood are actually using
+        double targetDist = shooter.getTargetDistance(x, y);
+        double targetVel = shooter.getTargetVelocity(targetDist);
+        double bottomVel = shooter.getBottomMotorSpeed(); // PIDF feedback motor
+        double topVel = shooter.getTopMotorSpeed();
+
+        // Cross-check: distance to the goal the TURRET is aiming at
+        double[] turretGoal = shooter.getTurretGoal(y);
+        double distToTurretGoal = Math.hypot(turretGoal[0] - (x - 72), turretGoal[1] - (y - 72)) + 6;
+
+        telemetry.addLine("--- Pose ---");
+        telemetry.addData("X", x);
+        telemetry.addData("Y", y);
         telemetry.addData("Heading", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Follower Mode", follower.mode());
-
         telemetry.addData("Path completion", follower.completion());
         telemetry.addData("Distance remaining in path", follower.remainingDistance());
+
+        telemetry.addLine("--- Flywheel ---");
+        telemetry.addData("Target velocity", targetVel);
+        telemetry.addData("Bottom velocity (PIDF)", bottomVel);
+        telemetry.addData("Top velocity", topVel);
+        telemetry.addData("Error (bottom - target)", bottomVel - targetVel);
+        telemetry.addData("Top/bottom mismatch", topVel - bottomVel);
+        telemetry.addData("Motor power (top/bottom)", "%.2f / %.2f", shooter.getTopMotorPower(), shooter.getBottomMotorPower());
+
+        telemetry.addLine("--- Shot ---");
+        telemetry.addData("Shooter target distance", targetDist);
+        telemetry.addData("Dist to turret's goal", distToTurretGoal);
+        telemetry.addData("Turret goal (x, y)", "%.1f, %.1f", turretGoal[0], turretGoal[1]);
+        telemetry.addData("Shot zone", shooter.getShotZone());
+        telemetry.addData("Hood position", shooter.getHoodPosition());
+        telemetry.addData("Shot table error", shooter.getShotTableError());
+        telemetry.addData("Turret servo pos", shooter.getTurretServoPosition());
         telemetry.update();
 
     }

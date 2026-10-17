@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems;
 
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -125,8 +127,8 @@ public class Intake {
 
         return Command.build()
                 .setStart(() -> {
-                    leftIntake.setPower(transferSpeed);
-                    rightIntake.setPower(transferSpeed);
+                    leftIntake.setPower(transferSpeedAuto);
+                    rightIntake.setPower(transferSpeedAuto);
                     stopper.setPosition(releaseBall);
                 })
                 .setDone(() -> true)
@@ -140,6 +142,7 @@ public class Intake {
                 .setStart(() -> {
                     leftIntake.setPower(0.0);
                     rightIntake.setPower(0.0);
+                    waitMs(200);
                     stopper.setPosition(blockBall);
                 })
                 .setDone(() -> true)

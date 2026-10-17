@@ -22,7 +22,7 @@ public class MainTeleOp extends OpMode {
     boolean testingShooter = false;
     boolean testingTurret = false;
     double turretAdjustment = 0;
-    double powerAdjustment = 0;
+    double powerAdjustment = 20;
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
@@ -141,15 +141,10 @@ public class MainTeleOp extends OpMode {
             //recalibration
             robot.dt.recalibrate();
         }
-        //TODO: decide corrections/ locking mechanisms for gp2
         //TODO: additional buttons like locked button / button remapping
-        //tbd controls, button for locked pos? buttons for correction?
-        // buttons for locking power or turret? gp2 controls?
-
-
-
-
-
+        //tbd controls, button for locked pos?
+        telemetry.addData("Power Adjustment", powerAdjustment);
+        telemetry.addData("Turret Adjustment", turretAdjustment);
     }
 
     @Override
