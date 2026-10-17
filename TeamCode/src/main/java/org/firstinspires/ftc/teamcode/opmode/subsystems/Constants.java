@@ -18,7 +18,7 @@ public class Constants {
     public static double dropDownIntakeFlower = 0.7;
     public static double dropDownIntakeUp = 0.63;
     public static double flowerIntakeDown = 0.520;
-    public static double flowerIntakeUp = 0.89;
+    public static double flowerIntakeUp = 0.93;
     // Misc
 
     // Shooter
@@ -36,7 +36,7 @@ public class Constants {
 
 
     // Turret
-    public static double turretBackCenterPos = 0.62;
+    public static double turretBackCenterPos = 0.58;
     public static double turretOffset = 0;
     public static double turretAdjustmentStep = 0.01;
     public static double powerAdjustmentStep = 10;
