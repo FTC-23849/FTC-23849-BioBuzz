@@ -68,6 +68,55 @@ public class Turret {
             }
         }
     }
+    public double[] calculateGoalPos(double robotY){
+        robotY -= 72;
+
+        //chooses target by picking the cell to aim at, and then
+        // picking a point in the hive cell with best angle
+        if(robot.alliance.equals("blue")){
+            if(robotY < 0){
+                //bottom right
+                return new double[]{13.1, -19.2};
+            }else{
+                //top right
+                return new double[]{13.1, 19.2};
+            }
+        }else{
+            if(robotY < 0){
+                //bottom left
+                return new double[]{-13.1, -19.2};
+            }else{
+                //top left
+                return new double[]{-13.1, 19.2};
+            }
+        }
+    }
+
+    public double calculateTurretServoPositionAuto(double robotX, double robotY, double robotAngleUnsigned){
+        double[] targetCoords = calculateGoalPos(robotY);
+
+        targetX = targetCoords[0];
+        targetY = targetCoords[1];
+        robotX -= 72;
+        robotX -= 72;
+
+        turretAngle = Math.toDegrees(Math.atan2(targetY - robotY, targetX - robotX));
+        if(turretAngle < 0){
+            turretAngle+=360;
+        }
+        turretAngle = ((turretAngle - robotAngleUnsigned) % 360 + 360) % 360;
+
+        double servoPosition = turretBackCenterPos - (turretAngle - 180)/turretRangeDeg;
+
+        if (servoPosition < 0){
+            servoPosition += 1;
+        }
+        if (servoPosition > 1){
+            servoPosition -= 1;
+        }
+
+        return Math.max(0.161, Math.min(servoPosition,0.894));
+    }
 
     public double calculateTurretServoPosition(Pose2D pos, double robotAngleUnsigned){
         double[] targetCoords = calculateGoalPos(pos);
@@ -92,7 +141,7 @@ public class Turret {
             servoPosition -= 1;
         }
 
-        return servoPosition;
+        return Math.max(rightLimit, Math.min(servoPosition,leftLimit));
     }
 
     public void update(boolean aim){

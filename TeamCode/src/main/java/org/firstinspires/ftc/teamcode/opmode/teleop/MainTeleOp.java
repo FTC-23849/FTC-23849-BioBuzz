@@ -17,6 +17,7 @@ public class MainTeleOp extends OpMode {
     public static double turretPositionTesting = 0.5;
     public static double flywheelSpeedTesting = 900;
     public static double hoodPositionTesting = 0.25;
+    public static boolean showServoStates = false;
     boolean testingShooter = false;
     boolean testingTurret = false;
     ElapsedTime releaseTimer = new ElapsedTime();
@@ -42,14 +43,12 @@ public class MainTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        //toggle testing, which switches from dynamic aiming and power to static aiming and power,
-        // for testing and if the robot breaks
         if(gamepad2.leftBumperWasReleased()){
-            //locks shooter (flywheel speed) and hood
+            //toggle testing, which switches from dynamic aiming and power to static aiming and power,
+            // for testing and if the robot break
             testingShooter = !testingShooter;
         }
         if(gamepad2.rightBumperWasReleased()){
-            //locks turret
             testingTurret = !testingTurret;
         }
         robot.testingShooter = testingShooter;
@@ -59,6 +58,12 @@ public class MainTeleOp extends OpMode {
         robot.flywheelSpeedTesting = flywheelSpeedTesting;
         robot.update(aim, sotm, alliance);
         robot.addTelemetry();
+        if(showServoStates){
+            telemetry.addData("Dropdown intake servo pos", robot.intake.dropdownIntake.getPosition());
+            telemetry.addData("Flower intake servo pos", robot.intake.flowerIntake.getPosition());
+            telemetry.addData("Hood servo pos", robot.shooter.hood.getPosition());
+            telemetry.addData("Stopper servo pos", robot.shooter.stopper.getPosition());
+        }
         telemetry.update();
         robot.dt.driveRobot(gamepad1);
 
@@ -86,7 +91,6 @@ public class MainTeleOp extends OpMode {
             robot.intake.dropdownUp();
             robot.intake.stopIntake();
             robot.intake.flowerIntakeUp();
-            //only close the stopper once the delay since the last release has passed
             if(releaseTimer.seconds() > Constants.blockDelay){
                 robot.shooter.block();
             }
