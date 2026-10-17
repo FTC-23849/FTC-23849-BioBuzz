@@ -22,8 +22,8 @@ public class Shooter {
     public ServoImplEx hood, stopper;
     Robot robot;
     public static String shotDistances  = "25,30|30,40,50|50,60,70,80|80,90,100";
-    public static String shotVelocities = "1350,1550|1350,143 ;0,1480|1370,1440,1500,1560|1500,1560,1630";
-    public static String hoodHeights    = "0.39|0.32|0.28|0.25";
+    public static String shotVelocities = "1350,1550|1370,1500,1560|1370,1490,1500,1560|1500,1560,1630";
+    public static String hoodHeights    = "0.37|0.3|0.28|0.25";
     String parsedDistances = null;
     String parsedVelocities = null;
     String parsedHoodHeights = null;
