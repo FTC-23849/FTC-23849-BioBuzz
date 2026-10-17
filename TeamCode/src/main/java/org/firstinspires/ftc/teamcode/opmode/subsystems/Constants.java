@@ -10,7 +10,7 @@ public class Constants {
     public static double sotmAccelFilter = 0.3;
 
     // Intake
-    public static double transferSpeed = 1.0;
+    public static double transferSpeed = 0.7;
     public static double transferSpeedAuto = 0.7;
     public static double intakePower = 1.000;
     public static double reverseIntakePower = -1.000;
