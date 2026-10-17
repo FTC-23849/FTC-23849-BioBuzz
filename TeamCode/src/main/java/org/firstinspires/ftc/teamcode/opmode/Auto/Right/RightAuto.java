@@ -4,6 +4,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.interpolator.Interpolator;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -51,11 +52,13 @@ public class RightAuto extends OpMode {
     private final Pose point2Control2 = poseFactory.of(45.5268, 14.5605, 0);
     private final Pose point3 = poseFactory.of(15, 4, -176.4442);
     private final Pose point3Control1 = poseFactory.of(38.5812, 6.6057, 0);
-    private final Pose point4 = poseFactory.of(60, 19.5232, -137.932);
-    private final Pose point4Control1 = poseFactory.of(39.4303, 4.6922, 0);
+    private final Pose point4 = poseFactory.of(60, 120, -270);
+    private final Pose point4Control1 = poseFactory.of(70.8507, 5.9923, 0);
+    private final Pose point4Control2 = poseFactory.of(61.915, 24.2427, 0);
+    private final Pose point4Segment2Start = poseFactory.of(59.1759, 121.2475, -174.8806);
+    private final Pose point4Segment2End = poseFactory.of(59.1759, 121.2475, 90);
     private final Pose point5 = poseFactory.of(48, 125, 94.4625);
-    private final Pose point5Control1 = poseFactory.of(62, 133.1585, 0);
-    private final Pose point5Control2 = poseFactory.of(48.7034, 103.33, 0);
+    private final Pose point5Control1 = poseFactory.of(47.0482, 106.9387, 0);
     private final Pose point6 = poseFactory.of(15, 111.227, 3.7768);
     private final Pose point6Control1 = poseFactory.of(46.7674, 113.7467, 0);
 
@@ -72,15 +75,15 @@ public class RightAuto extends OpMode {
     }
 
     public Path scoreLine() {
-        return curve(point3, point4Control1, point4).reverseTangent();
+        return curve(point3, point4Control1, point4Control2, point4).heading(Interpolator.piecewise().until(0.0869, Interpolator.tangent.reverse()).until(1, Interpolator.linear(point4Segment2Start, point4Segment2End)));
     }
 
     public Path flower2() {
-        return curve(point4, point5Control1, point5Control2, point5).tangent();
+        return curve(point4, point5Control1, point5).constant(point5);
     }
 
     public Path park() {
-        return curve(point5, point6Control1, point6).reverseTangent();
+        return curve(point5, point6Control1, point6).tangent();
     }
 
     private Command autoRoutine() {
@@ -138,7 +141,7 @@ public class RightAuto extends OpMode {
                 ),
                 waitMs(flowerDelay),
                 intake.transferOn(),
-                waitMs(shootingDelay),
+                waitMs(3000),
                 follow(follower, park())
 
         );
