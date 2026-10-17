@@ -140,6 +140,7 @@ public class Turret {
         if (servoPosition > 1){
             servoPosition -= 1;
         }
+        servoPosition += turretOffset;
 
         return Math.max(rightLimit, Math.min(servoPosition,leftLimit));
     }

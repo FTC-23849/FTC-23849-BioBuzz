@@ -4,9 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.opmode.subsystems.Constants;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 //testing commit
@@ -20,7 +18,6 @@ public class MainTeleOp extends OpMode {
     public static boolean showServoStates = false;
     boolean testingShooter = false;
     boolean testingTurret = false;
-    ElapsedTime releaseTimer = new ElapsedTime();
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
@@ -58,6 +55,7 @@ public class MainTeleOp extends OpMode {
         robot.flywheelSpeedTesting = flywheelSpeedTesting;
         robot.update(aim, sotm, alliance);
         robot.addTelemetry();
+        telemetry.addData("cfg flywheelSpeedTesting", flywheelSpeedTesting);
         if(showServoStates){
             telemetry.addData("Dropdown intake servo pos", robot.intake.dropdownIntake.getPosition());
             telemetry.addData("Flower intake servo pos", robot.intake.flowerIntake.getPosition());
@@ -91,14 +89,11 @@ public class MainTeleOp extends OpMode {
             robot.intake.dropdownUp();
             robot.intake.stopIntake();
             robot.intake.flowerIntakeUp();
-            if(releaseTimer.seconds() > Constants.blockDelay){
-                robot.shooter.block();
-            }
+            robot.shooter.block();
         }
 
         if((gamepad1.left_trigger > 0.7) && aim){
             robot.shooter.release();
-            releaseTimer.reset();
         }
 
         if(gamepad1.y){

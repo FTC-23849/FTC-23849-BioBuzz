@@ -21,9 +21,9 @@ public class Shooter {
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static String shotDistances  = "10,20,30,40,50|50,60,70,80,90|90,100,110,120,130";
-    public static String shotVelocities = "0,0,0,0,0|0,0,0,0,0|0,0,0,0,0";
-    public static String hoodHeights    = "0.43|0.32|0.25";
+    public static String shotDistances  = "25,30|30,40,50|50,60,70,80|80,90,100";
+    public static String shotVelocities = "1350,1400|1350,1410,1480|1370,1440,1500,1560|1500,1560,1630";
+    public static String hoodHeights    = "0.39|0.35|0.3|0.25";
     String parsedDistances = null;
     String parsedVelocities = null;
     String parsedHoodHeights = null;
