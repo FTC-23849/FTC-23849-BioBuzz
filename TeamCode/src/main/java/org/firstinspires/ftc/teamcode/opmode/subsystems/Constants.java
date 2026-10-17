@@ -17,8 +17,8 @@ public class Constants {
     public static double dropDownIntakeDown = 0.83;
     public static double dropDownIntakeFlower = 0.7;
     public static double dropDownIntakeUp = 0.63;
-    public static double flowerIntakeDown = 0.630;
-    public static double flowerIntakeUp = 0.93;
+    public static double flowerIntakeDown = 0.520;
+    public static double flowerIntakeUp = 0.89;
     // Misc
 
     // Shooter
