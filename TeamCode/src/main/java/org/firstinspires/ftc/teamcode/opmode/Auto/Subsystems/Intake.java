@@ -19,6 +19,8 @@ public class Intake {
 
     public Intake (HardwareMap hardwareMap) {
 
+        hwmap = hardwareMap;
+
         leftIntake = hwmap.get(DcMotorEx.class, "leftIntake");
         rightIntake = hwmap.get(DcMotorEx.class, "rightIntake");
         dropdownIntake = hwmap.get(ServoImplEx.class, "dropdownIntake");

@@ -8,7 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.opmode.Auto.pedro.Constants;
+import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 
 import static com.pedropathing.api.Paths.*;
 import static com.pedropathing.ivy.Scheduler.schedule;
@@ -28,11 +30,14 @@ public class LeftAuto extends OpMode {
     // Other Constants
     double initialWaitTime = 5000;
     double shootingDelay = 500;
+    double flowerIntakeDelay = 1000;
+
+    private Robot robot;
+    private Intake intake;
+    private Shooter shooter;
 
     // Pedro
-
     private Follower follower;
-    private Intake intake;
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
     private final Pose startPos = poseFactory.of(64.5, 132, 90);
@@ -77,6 +82,7 @@ public class LeftAuto extends OpMode {
                                 intake.flowerDown()
                         )
                 ),
+                waitMs(flowerIntakeDelay),
                 parallel(
                         follow(follower, reverseFlower1()),
                         sequential(
@@ -96,6 +102,7 @@ public class LeftAuto extends OpMode {
                                 intake.flowerDown()
                         )
                 ),
+                waitMs(flowerIntakeDelay),
                 parallel(
                         follow(follower, scoreFlower2()),
                         sequential(
@@ -118,6 +125,15 @@ public class LeftAuto extends OpMode {
         follower.setPose(startPos);
         follower.update();
 
+        robot = new Robot(hardwareMap);
+        robot.alliance = "red"; // TODO: confirm this is the correct alliance for this auto
+
+        intake = new Intake(hardwareMap);
+        intake.init();
+
+        shooter = new Shooter(hardwareMap, robot);
+        shooter.init();
+
     }
 
     @Override
@@ -132,6 +148,9 @@ public class LeftAuto extends OpMode {
 
         follower.update();
         Scheduler.execute();
+
+        shooter.updateFlywheel(follower.pose().x(), follower.pose().y());
+        shooter.updateTurret(follower.pose().x(), follower.pose().y(), follower.pose().heading());
 
         telemetry.addData("X", follower.pose().x());
         telemetry.addData("Y", follower.pose().y());
