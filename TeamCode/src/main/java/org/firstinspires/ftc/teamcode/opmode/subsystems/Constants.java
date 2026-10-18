@@ -36,7 +36,7 @@ public class Constants {
 
 
     // Turret
-    public static double turretBackCenterPos = 0.58;
+    public static double turretBackCenterPos = 0.55;
     public static double turretOffset = 0;
     public static double turretAdjustmentStep = 0.01;
     public static double powerAdjustmentStep = 10;

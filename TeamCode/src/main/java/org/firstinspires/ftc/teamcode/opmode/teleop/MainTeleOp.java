@@ -22,7 +22,7 @@ public class MainTeleOp extends OpMode {
     boolean testingShooter = false;
     boolean testingTurret = false;
     public static double turretAdjustment = 0;
-    public static double powerAdjustment = -40;
+    public static double powerAdjustment = -80;
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
