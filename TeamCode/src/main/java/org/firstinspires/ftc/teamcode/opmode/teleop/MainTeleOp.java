@@ -98,7 +98,7 @@ public class MainTeleOp extends OpMode {
         } else if(gamepad1.right_bumper){
             //run intake without dropdown, maybe do toggle?
             robot.intake.runIntake(Intake.IntakeState.UP);
-        }else if(gamepad1.y){
+        }else if(gamepad1.left_bumper){
             //run intake with dropdown intake down and flower intake down
             robot.intake.runIntake(Intake.IntakeState.FLOWER);
         }else if(gamepad1.a){
@@ -120,7 +120,7 @@ public class MainTeleOp extends OpMode {
         }
 
 
-        if(gamepad1.left_bumper){
+        if(gamepad1.y){
             //TODO: sotm
             //technically sotm but justin can keep dreaming
             sotm = true;
