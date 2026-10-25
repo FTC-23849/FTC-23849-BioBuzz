@@ -21,17 +21,17 @@ public class Shooter {
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static String shotDistances  = "25,30|30,40,50|50,60,70,80|80,90,100";
-    public static String shotVelocities = "1350,1550|1370,1500,1560|1370,1490,1500,1560|1500,1560,1630";
-    public static String hoodHeights    = "0.37|0.3|0.28|0.25";
+    public static String shotDistances  = "25,30,30,40,50,50,60,70,80,80,90,100";
+    public static String shotVelocities = "1350,1550,1370,1500,1560,1370,1490,1500,1560,1500,1560,1630";
+    public static int maxShotCurveDegree = 3;
     String parsedDistances = null;
     String parsedVelocities = null;
-    String parsedHoodHeights = null;
-    PolynomialFunction[] zoneCurves = null;
-    double[] zoneEnds = null;
-    double[] zoneHoods = null;
+    int parsedDegree = -1;
+    PolynomialFunction shotCurve = null;
     public String shotTableError = "table not parsed yet";
     public int shotZone = 0;
+    public double launchAngle = 0;
+    public double hoodAngle = 0;
 
     PIDFController flywheelPIDF;
     double targetX = 0;
@@ -42,120 +42,87 @@ public class Shooter {
     double velocityError = 0;
 
 
-    double[][] parseZones(String text){
-        String trimmed = text.trim();
-        while(trimmed.startsWith("|")){
-            trimmed = trimmed.substring(1).trim();
+    double[] parseList(String text){
+        String[] values = text.trim().split(",", -1);
+        double[] parsed = new double[values.length];
+        for (int i = 0; i < values.length; i++) {
+            parsed[i] = Double.parseDouble(values[i].trim());
         }
-        while(trimmed.endsWith("|")){
-            trimmed = trimmed.substring(0, trimmed.length() - 1).trim();
-        }
-        String[] groups = trimmed.split("[|]", -1);
-        double[][] zones = new double[groups.length][];
-        for (int z = 0; z < groups.length; z++) {
-            String[] values = groups[z].trim().split(",", -1);
-            zones[z] = new double[values.length];
-            for (int i = 0; i < values.length; i++) {
-                zones[z][i] = Double.parseDouble(values[i].trim());
-            }
-        }
-        return zones;
+        return parsed;
     }
 
     void refreshShotTable(){
         if(shotDistances.equals(parsedDistances) && shotVelocities.equals(parsedVelocities)
-                && hoodHeights.equals(parsedHoodHeights)){
+                && maxShotCurveDegree == parsedDegree){
             return;
         }
         parsedDistances = shotDistances;
         parsedVelocities = shotVelocities;
-        parsedHoodHeights = hoodHeights;
+        parsedDegree = maxShotCurveDegree;
         try{
-            double[][] dists = parseZones(shotDistances);
-            double[][] vels = parseZones(shotVelocities);
-            double[][] hoods = parseZones(hoodHeights);
-            if(dists.length != vels.length || dists.length != hoods.length){
-                throw new IllegalArgumentException("zone counts differ: dist " + dists.length
-                        + ", vel " + vels.length + ", hood " + hoods.length);
+            double[] dists = parseList(shotDistances);
+            double[] vels = parseList(shotVelocities);
+            if(dists.length != vels.length){
+                throw new IllegalArgumentException(dists.length + " distances but " + vels.length + " velocities");
             }
-            PolynomialFunction[] curves = new PolynomialFunction[dists.length];
-            double[] ends = new double[dists.length];
-            double[] hoodPositions = new double[dists.length];
-            for (int z = 0; z < dists.length; z++) {
-                if(dists[z].length != vels[z].length){
-                    throw new IllegalArgumentException("zone " + (z + 1) + " has "
-                            + dists[z].length + " distances but " + vels[z].length + " velocities");
-                }
-                if(dists[z].length < 2){
-                    throw new IllegalArgumentException("zone " + (z + 1) + " needs at least 2 points");
-                }
-                if(hoods[z].length != 1){
-                    throw new IllegalArgumentException("zone " + (z + 1) + " needs exactly 1 hood height");
-                }
-                WeightedObservedPoints points = new WeightedObservedPoints();
-                for (int i = 0; i < dists[z].length; i++) {
-                    points.add(dists[z][i], vels[z][i]);
-                }
-                int degree = Math.min(4, dists[z].length - 1);
-                curves[z] = new PolynomialFunction(PolynomialCurveFitter.create(degree).fit(points.toList()));
-                ends[z] = dists[z][dists[z].length - 1];
-                hoodPositions[z] = hoods[z][0];
+            if(dists.length < 2){
+                throw new IllegalArgumentException("need at least 2 points");
             }
-            zoneCurves = curves;
-            zoneEnds = ends;
-            zoneHoods = hoodPositions;
+            WeightedObservedPoints points = new WeightedObservedPoints();
+            for (int i = 0; i < dists.length; i++) {
+                points.add(dists[i], vels[i]);
+            }
+            int degree = Math.max(1, Math.min(maxShotCurveDegree, dists.length - 1));
+            shotCurve = new PolynomialFunction(PolynomialCurveFitter.create(degree).fit(points.toList()));
             shotTableError = null;
         }catch(Exception e){
-            zoneCurves = null;
-            zoneEnds = null;
-            zoneHoods = null;
+            shotCurve = null;
             shotTableError = e.getMessage();
         }
-    }
-
-    int findZone(double distanceFromTarget){
-        for (int z = 0; z < zoneEnds.length - 1; z++) {
-            if(distanceFromTarget <= zoneEnds[z]){
-                return z;
-            }
-        }
-        return zoneEnds.length - 1;
     }
 
     public double calculateShotSpeed(double distanceFromTarget){
         if(shotTableError != null){
             return 0;
         }
-        shotZone = findZone(distanceFromTarget);
-        return Math.max(0, zoneCurves[shotZone].value(distanceFromTarget));
+        return Math.max(0, shotCurve.value(distanceFromTarget));
+    }
+
+    public double calculateLaunchAngle(double distanceFromTarget){
+        double d = distanceFromTarget;
+        double h = hiveHeight - shooterHeight;
+        double p = d - approachBack;
+        double q = h + approachUp;
+        if(p <= 0){
+            return 90 - hoodMinAngle;
+        }
+        double slope = (q * d * d - h * p * p) / (approachBack * d * p);
+        return Math.toDegrees(Math.atan(slope));
+    }
+
+    public double calculateHoodPosition(double distanceFromTarget){
+        launchAngle = calculateLaunchAngle(distanceFromTarget);
+        hoodAngle = Math.max(hoodMinAngle, Math.min(hoodMaxAngle, 90 - launchAngle));
+        double t = (hoodAngle - hoodMinAngle) / (hoodMaxAngle - hoodMinAngle);
+        return hoodDown + t * (hoodUp - hoodDown);
     }
 
     public double calculateTargetDist(Pose2D pos){
-        //adds distance to midpoint entry to shoot deeper into the goal
         double robotX = pos.getX(DistanceUnit.INCH);
         double robotY = pos.getY(DistanceUnit.INCH);
-        double[] entry = robot.turret.calculateGoalPos(pos);
-        double entryX = entry[0];
-        double entryY = entry[1];
-        double distance = Math.hypot(entryX - robotX, entryY - robotY);
-        //the point 6 in past the entry along the shot line, for telemetry
-        targetX = entryX + 6 * (entryX - robotX) / distance;
-        targetY = entryY + 6 * (entryY - robotY) / distance;
-        return distance + 6;
+        double[] goal = robot.turret.calculateGoalPos(pos);
+        targetX = goal[0];
+        targetY = goal[1];
+        return Math.hypot(targetX - robotX, targetY - robotY);
     }
 
     public double calculateTargetDist(double robotX, double robotY){
-        //adds distance to midpoint entry to shoot deeper into the goal
         robotX -= 72;
         robotY -= 72;
-        double[] entry = robot.turret.calculateGoalPos(robotY);
-        double entryX = entry[0];
-        double entryY = entry[1];
-        double distance = Math.hypot(entryX - robotX, entryY - robotY);
-        //the point 6 in past the entry along the shot line, for telemetry
-        targetX = entryX + 6 * (entryX - robotX) / distance;
-        targetY = entryY + 6 * (entryY - robotY) / distance;
-        return distance + 6;
+        double[] goal = robot.turret.calculateGoalPos(robotY);
+        targetX = goal[0];
+        targetY = goal[1];
+        return Math.hypot(targetX - robotX, targetY - robotY);
     }
 
 
@@ -204,13 +171,13 @@ public class Shooter {
 
         //target and distance are always calculated so they show in telemetry
         targetDist = calculateTargetDist(robot.dt.getRobotPos());
-        currVelocity = bottomShooter.getVelocity();
+        currVelocity = -topShooter.getVelocity();
 
         boolean tableOk = shotTableError == null;
         if(robot.testingShooter){
             hood.setPosition(robot.hoodPositionTesting);
-        }else if(aim && tableOk){
-            hood.setPosition(zoneHoods[findZone(targetDist)]);
+        }else if(aim){
+            hood.setPosition(calculateHoodPosition(targetDist));
         }else{
             hood.setPosition(hoodUp);
         }
@@ -245,15 +212,13 @@ public class Shooter {
 
         //target and distance are always calculated so they show in telemetry
         targetDist = calculateTargetDist(robotX, robotY);
-        currVelocity = bottomShooter.getVelocity();
+        currVelocity = -topShooter.getVelocity();
 
         boolean tableOk = shotTableError == null;
         if(robot.testingShooter){
             hood.setPosition(robot.hoodPositionTesting);
-        }else if(tableOk){
-            hood.setPosition(zoneHoods[findZone(targetDist)]);
         }else{
-            hood.setPosition(hoodUp);
+            hood.setPosition(calculateHoodPosition(targetDist));
         }
 
         if((robot.testingShooter || tableOk)){

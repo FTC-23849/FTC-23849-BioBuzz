@@ -10,9 +10,10 @@ public class Constants {
     public static double sotmAccelFilter = 0.3;
 
     // Intake
-    public static double transferSpeed = 0.7;
+    public static double transferSpeed = 1;
     public static double transferSpeedAuto = 0.7;
-    public static double intakePower = 1.000;
+    public static double
+            intakePower = 1.000;
     public static double reverseIntakePower = -1.000;
     public static double dropDownIntakeDown = 0.83;
     public static double dropDownIntakeFlower = 0.7;
@@ -33,14 +34,21 @@ public class Constants {
 
     public static double hoodUp = 0.25;
     public static double hoodDown = 0.43;
+    public static double hoodMinAngle = 10;
+    public static double hoodMaxAngle = 35;
+
+    public static double shooterHeight = 365 / 25.4;
+    public static double hiveHeight = 60;
+    public static double approachBack = 6;
+    public static double approachUp = 6;
 
 
     // Turret
-    public static double turretBackCenterPos = 0.55;
+    public static double turretBackCenterPos = 0.49;
     public static double turretOffset = 0;
     public static double turretAdjustmentStep = 0.01;
     public static double powerAdjustmentStep = 10;
-    public static double turretRangeDeg = 350;
+    public static double turretRangeDeg = 350 * (60/20) * (35.0/99);
     public static double rightLimit = 0.219;
     public static double leftLimit = 0.894;
 }

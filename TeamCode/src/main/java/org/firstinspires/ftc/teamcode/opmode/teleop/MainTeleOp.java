@@ -127,14 +127,17 @@ public class MainTeleOp extends OpMode {
         }else{
             sotm = false;
         }
-        if(gamepad1.dpad_left){
-            alliance = "red";
-        }
-        if(gamepad1.dpad_right){
+        if(gamepad1.x){
             alliance = "blue";
         }
-        if(gamepad1.x){
-            robot.dt.relocalize(alliance);
+        if(gamepad1.b){
+            alliance = "red";
+        }
+        if(gamepad1.dpadLeftWasPressed()){
+            robot.dt.relocalize(alliance, true);
+        }
+        if(gamepad1.dpadRightWasPressed()){
+            robot.dt.relocalize(alliance, false);
         }
 
         if(gamepad1.startWasReleased()){

@@ -38,12 +38,11 @@ public class Drivetrain {
         RB.setPower((y + x - rx) / denominator);
     }
 
-    public void relocalize(String alliance){
-        //TODO: set actual reloc positions
-        if(alliance.equals("red")) {
-            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -66, -66, AngleUnit.DEGREES, 90));
+    public void relocalize(String alliance, boolean leftCorner){
+        if(alliance.equals("blue")) {
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 66, leftCorner ? -66 : 66, AngleUnit.DEGREES, 180));
         } else {
-            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 66, -66, AngleUnit.DEGREES, 90));
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -66, leftCorner ? 66 : -66, AngleUnit.DEGREES, 0));
         }
     }
     public void recalibrate(){
