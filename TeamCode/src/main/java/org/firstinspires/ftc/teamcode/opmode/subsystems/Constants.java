@@ -28,7 +28,7 @@ public class Constants {
 
     public static double kP = 0.0015;
     public static double kI = 0.0;
-    public static double kD = 0.00005;
+    public static double kD = 0.00003;
     public static double kS = 0.1;
     public static double kV = 0.00035;
 
@@ -40,11 +40,11 @@ public class Constants {
     public static double shooterHeight = 365 / 25.4;
     public static double hiveHeight = 60;
     public static double approachBack = 6;
-    public static double approachUp = 6;
+    public static double approachUp = 3;
 
 
     // Turret
-    public static double turretBackCenterPos = 0.49;
+    public static double turretBackCenterPos = 0.47;
     public static double turretOffset = 0;
     public static double turretAdjustmentStep = 0.01;
     public static double powerAdjustmentStep = 10;
