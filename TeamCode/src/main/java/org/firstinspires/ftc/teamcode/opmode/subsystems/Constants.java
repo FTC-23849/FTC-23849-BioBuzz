@@ -15,9 +15,9 @@ public class Constants {
     public static double
             intakePower = 1.000;
     public static double reverseIntakePower = -1.000;
-    public static double dropDownIntakeDown = 0.83;
+    public static double dropDownIntakeDown = 0.7;
     public static double dropDownIntakeFlower = 0.7;
-    public static double dropDownIntakeUp = 0.63;
+    public static double dropDownIntakeUp = 0.53;
     public static double flowerIntakeDown = 0.520;
     public static double flowerIntakeUp = 0.93;
     // Misc

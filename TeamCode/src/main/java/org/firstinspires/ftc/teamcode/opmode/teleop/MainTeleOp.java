@@ -75,6 +75,12 @@ public class MainTeleOp extends OpMode {
         robot.update(aim, sotm, alliance);
         robot.addTelemetry();
         telemetry.addData("cfg flywheelSpeedTesting", flywheelSpeedTesting);
+        String allianceName = alliance.substring(0, 1).toUpperCase() + alliance.substring(1);
+        if(robot.misc.canShoot(alliance)){
+            telemetry.addLine(allianceName + "'s Hive cell is in a ready to shoot position");
+        }else{
+            telemetry.addLine(allianceName + "'s Hive cell is not in a ready to shoot position");
+        }
         if(showServoStates){
             telemetry.addData("Dropdown intake servo pos", robot.intake.dropdownIntake.getPosition());
             telemetry.addData("Flower intake servo pos", robot.intake.flowerIntake.getPosition());
