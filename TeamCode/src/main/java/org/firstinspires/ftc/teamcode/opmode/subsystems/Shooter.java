@@ -21,9 +21,9 @@ public class Shooter {
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static String shotDistances  = "25,30,30,40,50,50,60,70,80,80,90,100";
-    public static String shotVelocities = "1350,1550,1370,1500,1560,1370,1490,1500,1560,1500,1560,1630";
-    public static int maxShotCurveDegree = 3;
+    public static String shotDistances  = "25,30,40,50,60,72,80,93,100";
+    public static String shotVelocities = "1180,1240,1220,1300,1340,1300,1350,1410,1480";
+    public static int maxShotCurveDegree = 6;
     String parsedDistances = null;
     String parsedVelocities = null;
     int parsedDegree = -1;
@@ -88,16 +88,25 @@ public class Shooter {
         return Math.max(0, shotCurve.value(distanceFromTarget));
     }
 
-    public double calculateLaunchAngle(double distanceFromTarget){
-        double d = distanceFromTarget;
+    double apexLaunchAngle(double d){
         double h = hiveHeight - shooterHeight;
-        double p = d - approachBack;
-        double q = h + approachUp;
-        if(p <= 0){
+        double H = h + apexAboveGoal;
+        if(d <= 0 || H <= 0){
             return 90 - hoodMinAngle;
         }
-        double slope = (q * d * d - h * p * p) / (approachBack * d * p);
+        double s = Math.sqrt(1 - h / H);
+        double slope = 2 * H * (1 + s) / d;
         return Math.toDegrees(Math.atan(slope));
+    }
+
+    public double calculateLaunchAngle(double distanceFromTarget){
+        double angle = apexLaunchAngle(distanceFromTarget);
+        double knee = apexLaunchAngle(closeShotStartDist);
+        double extra = angle - knee;
+        if(extra <= 0 || closeShotMaxExtraAngle <= 0){
+            return angle;
+        }
+        return knee + extra / (1 + extra / closeShotMaxExtraAngle);
     }
 
     public double calculateHoodPosition(double distanceFromTarget){

@@ -10,14 +10,14 @@ public class Constants {
     public static double sotmAccelFilter = 0.3;
 
     // Intake
-    public static double transferSpeed = 1;
+    public static double transferSpeed = 1.0;
     public static double transferSpeedAuto = 0.7;
     public static double
             intakePower = 1.000;
     public static double reverseIntakePower = -1.000;
-    public static double dropDownIntakeDown = 0.7;
+    public static double dropDownIntakeDown = 0.63;
     public static double dropDownIntakeFlower = 0.7;
-    public static double dropDownIntakeUp = 0.53;
+    public static double dropDownIntakeUp = 0.43;
     public static double flowerIntakeDown = 0.520;
     public static double flowerIntakeUp = 0.93;
     // Misc
@@ -26,9 +26,9 @@ public class Constants {
     public static double blockBall = 0.510;
     public static double releaseBall = 0.380;
 
-    public static double kP = 0.0015;
+    public static double kP = 0.008;
     public static double kI = 0.0;
-    public static double kD = 0.00003;
+    public static double kD = 0.00006;
     public static double kS = 0.1;
     public static double kV = 0.00035;
 
@@ -39,8 +39,9 @@ public class Constants {
 
     public static double shooterHeight = 365 / 25.4;
     public static double hiveHeight = 60;
-    public static double approachBack = 6;
-    public static double approachUp = 3;
+    public static double apexAboveGoal = 6;
+    public static double closeShotStartDist = 65;
+    public static double closeShotMaxExtraAngle = 8;
 
 
     // Turret
@@ -49,6 +50,6 @@ public class Constants {
     public static double turretAdjustmentStep = 0.01;
     public static double powerAdjustmentStep = 10;
     public static double turretRangeDeg = 350 * (60/20) * (35.0/99);
-    public static double rightLimit = 0.219;
-    public static double leftLimit = 0.894;
+    public static double rightLimit = 0;
+    public static double leftLimit = 1;
 }

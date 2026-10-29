@@ -21,8 +21,8 @@ public class MainTeleOp extends OpMode {
     public static boolean showServoStates = false;
     boolean testingShooter = false;
     boolean testingTurret = false;
-    public static double turretAdjustment = 0;
-    public static double powerAdjustment = -100;
+    public static double turretAdjustment = -0.01;
+    public static double powerAdjustment = 0;
     boolean aim = false;
     boolean sotm = false;
     String alliance = "red";
@@ -41,6 +41,7 @@ public class MainTeleOp extends OpMode {
     @Override
     public void start() {
         robot.start();
+        robot.misc.limelight.stop();
     }
 
     @Override
@@ -75,12 +76,6 @@ public class MainTeleOp extends OpMode {
         robot.update(aim, sotm, alliance);
         robot.addTelemetry();
         telemetry.addData("cfg flywheelSpeedTesting", flywheelSpeedTesting);
-        String allianceName = alliance.substring(0, 1).toUpperCase() + alliance.substring(1);
-        if(robot.misc.canShoot(alliance)){
-            telemetry.addLine(allianceName + "'s Hive cell is in a ready to shoot position");
-        }else{
-            telemetry.addLine(allianceName + "'s Hive cell is not in a ready to shoot position");
-        }
         if(showServoStates){
             telemetry.addData("Dropdown intake servo pos", robot.intake.dropdownIntake.getPosition());
             telemetry.addData("Flower intake servo pos", robot.intake.flowerIntake.getPosition());
