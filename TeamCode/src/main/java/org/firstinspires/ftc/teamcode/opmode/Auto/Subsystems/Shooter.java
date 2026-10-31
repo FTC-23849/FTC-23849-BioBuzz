@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.opmode.subsystems.Misc;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Turret;
 
@@ -9,15 +10,25 @@ public class Shooter {
 
     private final org.firstinspires.ftc.teamcode.opmode.subsystems.Shooter shooter;
     private final Turret turret;
+    private final Misc misc;
 
     public Shooter(HardwareMap hwmap, Robot robot) {
         this.shooter = new org.firstinspires.ftc.teamcode.opmode.subsystems.Shooter(hwmap, robot);
         this.turret = new Turret(hwmap, robot);
+        this.misc = new Misc(hwmap);
     }
 
     public void init() {
         shooter.init();
         turret.init();
+        misc.init();
+        misc.start();
+    }
+
+    public boolean canShoot(String alliance) {
+
+        return misc.canShoot(alliance);
+
     }
 
     public double getTopMotorSpeed() {
