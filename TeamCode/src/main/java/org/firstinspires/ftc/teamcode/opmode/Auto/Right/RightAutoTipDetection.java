@@ -5,6 +5,9 @@ import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
@@ -23,6 +26,7 @@ import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.opmode.Auto.pedro.Constants;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 
+@Config
 @Autonomous
 public class RightAutoTipDetection extends OpMode {
 
@@ -51,8 +55,8 @@ public class RightAutoTipDetection extends OpMode {
     private final Pose lineToPrimaryControl1 = poseFactory.of(57, 6.8, 0);
     private final Pose primaryToSecondaryReverseControl1 = poseFactory.of(61, 72, 0);
 
-    private final Pose flower1 = poseFactory.of(14, 48, 180);
-    private final Pose flower2 = poseFactory.of(48, 124, 90);
+    private final Pose flower1 = poseFactory.of(15, 50, 180);
+    private final Pose flower2 = poseFactory.of(48, 130, 90);
 
     private final Pose primaryToFlower1C1 = poseFactory.of(40, 23, 0);
     private final Pose primaryToFlower1C2 = poseFactory.of(32, 46, 0);
@@ -71,17 +75,17 @@ public class RightAutoTipDetection extends OpMode {
     private final Pose flower2ToPrimaryC1 = poseFactory.of(65, 100, 0);
     private final Pose flower2ToSecondaryC1 = poseFactory.of(48, 100, 0);
 
-    private final Pose primaryToRightPark = poseFactory.of(10, 90, 0);
+    private final Pose primaryToRightPark = poseFactory.of(14, 95, 0);
     private final Pose primaryToRightParkC1 = poseFactory.of(24, 42, 0);
 
-    private final Pose primaryToLeftPark = poseFactory.of(12, 120, 180);
+    private final Pose primaryToLeftPark = poseFactory.of(19, 120, 0);
     private final Pose primaryToLeftParkC1 = poseFactory.of(11, 34, 0);
     private final Pose primaryToLeftParkC2 = poseFactory.of(50, 120, 0);
 
-    private final Pose secondaryToRightPark = poseFactory.of(12, 95, 180);
+    private final Pose secondaryToRightPark = poseFactory.of(16, 95, 0);
     private final Pose secondaryToRightParkC1 = poseFactory.of(40, 95, 0);
 
-    private final Pose secondaryToLeftPark = poseFactory.of(12, 120, 180);
+    private final Pose secondaryToLeftPark = poseFactory.of(16, 120, 0);
 
 
     public Path intakeLine() {
@@ -97,7 +101,7 @@ public class RightAutoTipDetection extends OpMode {
     }
 
     public Path secondaryToPrimary() {
-        return Paths.curve(secondary, primaryToSecondaryReverseControl1, primary).constant(poseFactory.of(0, 0, 180));
+        return Paths.curve(secondary, primaryToSecondaryReverseControl1, primary).constant(poseFactory.of(0, 0, 90));
     }
 
     public Path primaryToFlower1() {
@@ -113,7 +117,7 @@ public class RightAutoTipDetection extends OpMode {
     }
 
     public Path flower1ToSecondary() {
-        return Paths.curve(flower1, flower1ToSecondaryC1, flower1ToSecondaryC2, secondary).linear(flower1, poseFactory.of(0, 0, 180));
+        return Paths.curve(flower1, flower1ToSecondaryC1, flower1ToSecondaryC2, secondary).linear(flower1, poseFactory.of(0, 0, 90));
     }
 
     public Path primaryToFlower2() {
@@ -125,7 +129,7 @@ public class RightAutoTipDetection extends OpMode {
     }
 
     public Path flower2ToPrimary() {
-        return Paths.curve(flower2, flower2ToPrimaryC1, primary).constant(poseFactory.of(0, 0, 90));
+        return Paths.curve(flower2, flower2ToPrimaryC1, primary).constant(poseFactory.of(0, 0, 270));
     }
 
     public Path flower2ToSecondary() {
@@ -137,11 +141,11 @@ public class RightAutoTipDetection extends OpMode {
     }
 
     public Path primaryToLeftPark() {
-        return Paths.curve(primary, primaryToLeftParkC1, primaryToLeftParkC2, primaryToLeftPark).tangent();
+        return Paths.curve(primary, primaryToLeftParkC1, primaryToLeftParkC2, primaryToLeftPark).linear(primary, primaryToLeftPark);
     }
 
     public Path secondaryToRightPark() {
-        return Paths.curve(secondary, secondaryToRightParkC1, secondaryToRightPark).tangent();
+        return Paths.curve(secondary, secondaryToRightParkC1, secondaryToRightPark).constant(secondaryToRightPark);
     }
 
     public Path secondaryToLeftPark() {
@@ -198,6 +202,8 @@ public class RightAutoTipDetection extends OpMode {
         shooter.init();
 
         autoRobot = new AutoRobot(shooter, intake, follower, AutoConstants.SHOOTING_START_DELAY, AutoConstants.SHOOTING_DELAY);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
     }
 
@@ -264,22 +270,22 @@ public class RightAutoTipDetection extends OpMode {
         telemetry.addData("Path completion", follower.completion());
         telemetry.addData("Distance remaining in path", follower.remainingDistance());
 
-//        telemetry.addLine("--- Flywheel ---");
-//        telemetry.addData("Target velocity", targetVel);
-//        telemetry.addData("Bottom velocity (PIDF)", bottomVel);
-//        telemetry.addData("Top velocity", topVel);
-//        telemetry.addData("Error (bottom - target)", bottomVel - targetVel);
-//        telemetry.addData("Top/bottom mismatch", topVel - bottomVel);
-//        telemetry.addData("Motor power (top/bottom)", "%.2f / %.2f", shooter.getTopMotorPower(), shooter.getBottomMotorPower());
-//
-//        telemetry.addLine("--- Shot ---");
-//        telemetry.addData("Shooter target distance", targetDist);
-//        telemetry.addData("Dist to turret's goal", distToTurretGoal);
-//        telemetry.addData("Turret goal (x, y)", "%.1f, %.1f", turretGoal[0], turretGoal[1]);
-//        telemetry.addData("Shot zone", shooter.getShotZone());
-//        telemetry.addData("Hood position", shooter.getHoodPosition());
-//        telemetry.addData("Shot table error", shooter.getShotTableError());
-//        telemetry.addData("Turret servo pos", shooter.getTurretServoPosition());
+        telemetry.addLine("--- Flywheel ---");
+        telemetry.addData("Target velocity", targetVel);
+        telemetry.addData("Bottom velocity (PIDF)", bottomVel);
+        telemetry.addData("Top velocity", topVel);
+        telemetry.addData("Error (bottom - target)", bottomVel - targetVel);
+        telemetry.addData("Top/bottom mismatch", topVel - bottomVel);
+        telemetry.addData("Motor power (top/bottom)", "%.2f / %.2f", shooter.getTopMotorPower(), shooter.getBottomMotorPower());
+
+        telemetry.addLine("--- Shot ---");
+        telemetry.addData("Shooter target distance", targetDist);
+        telemetry.addData("Dist to turret's goal", distToTurretGoal);
+        telemetry.addData("Turret goal (x, y)", "%.1f, %.1f", turretGoal[0], turretGoal[1]);
+        telemetry.addData("Shot zone", shooter.getShotZone());
+        telemetry.addData("Hood position", shooter.getHoodPosition());
+        telemetry.addData("Shot table error", shooter.getShotTableError());
+        telemetry.addData("Turret servo pos", shooter.getTurretServoPosition());
         telemetry.update();
 
     }

@@ -144,7 +144,7 @@ public class Shooter {
     public double calculateTargetDist(double robotX, double robotY){
         robotX -= 72;
         robotY -= 72;
-        double[] goal = robot.turret.calculateGoalPos(robotY);
+        double[] goal = robot.turret.calculateGoalPos(robotY + 72); // calculateGoalPos does its own -72
         targetX = goal[0];
         targetY = goal[1];
         return Math.hypot(targetX - robotX, targetY - robotY);

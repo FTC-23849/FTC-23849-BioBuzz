@@ -62,7 +62,7 @@ public class PathSelector {
     // otherwise drive to the other spot (and stay on that one from now on) and shoot there
     public Command shootAtBestSpot(Path primaryToSecondary, Path secondaryToPrimary) {
         return sequential(
-                waitMs(150),
+                waitMs(AutoConstants.TIP_DETECTION_WAIT_TIME),
                 lazy(() -> {
                     if (shooter.canShoot(alliance)) {
                         return waitMs(0);
@@ -85,7 +85,7 @@ public class PathSelector {
     // it stays put and shoots anyway.
     public Command shootAtBestSpot(Path switchPath, boolean startsAtPrimary) {
         return sequential(
-                waitMs(150),
+                waitMs(AutoConstants.TIP_DETECTION_WAIT_TIME),
                 lazy(() -> {
                     if (shooter.canShoot(alliance) || atPrimarySpot != startsAtPrimary) {
                         return waitMs(0);
