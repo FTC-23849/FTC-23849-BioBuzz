@@ -18,25 +18,21 @@ public class AutoRobot {
     private final Shooter shooter;
     private final Intake intake;
     private final Follower follower;
-    private final double shootingStartDelay;
-    private final double shootingDelay;
 
-    public AutoRobot(Shooter shooter, Intake intake, Follower follower, double shootingStartDelay, double shootingDelay) {
+    public AutoRobot(Shooter shooter, Intake intake, Follower follower) {
 
         this.shooter = shooter;
         this.intake = intake;
         this.follower = follower;
-        this.shootingStartDelay = shootingStartDelay;
-        this.shootingDelay = shootingDelay;
 
     }
 
     public Command shoot() {
 
         return sequential(
-                waitMs(shootingStartDelay),
+                waitMs(AutoConstants.SHOOTING_START_DELAY),
                 intake.transferOn(),
-                waitMs(shootingDelay),
+                waitMs(AutoConstants.SHOOTING_DELAY),
                 intake.closeGate()
         );
 

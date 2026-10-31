@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 
 import static com.pedropathing.ivy.commands.Commands.lazy;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
@@ -140,6 +141,27 @@ public class PathSelector {
                     intake.flowerAndIntakeUp()
             );
         });
+    }
+
+    // Park when you know the robot is only ever coming from one place:
+    // just give the right and left park paths from there.
+    // Also turns the intake off and raises both the intake and the flower intake.
+    public Command park(Path toRight, Path toLeft, boolean parkRight) {
+        return parallel(
+                follow(follower, parkRight ? toRight : toLeft),
+                intake.intakeOff(),
+                intake.flowerAndIntakeUp()
+        );
+    }
+
+    // Wait until the camera sees our alliance's tags (hive tipped so we can shoot),
+    // wait AutoConstants.TIP_DELAY ms more for it to settle, then shoot
+    public Command shootWhenTipped() {
+        return sequential(
+                waitUntil(() -> shooter.canShoot(alliance)),
+                waitMs(AutoConstants.TIP_DELAY),
+                autoRobot.shoot()
+        );
     }
 
     // For telemetry

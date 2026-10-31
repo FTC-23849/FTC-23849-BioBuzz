@@ -1,136 +1,85 @@
 package org.firstinspires.ftc.teamcode.opmode.Auto.Left;
 
+import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.opmode.Auto.AutoConstants;
+import org.firstinspires.ftc.teamcode.opmode.Auto.AutoRobot;
+import org.firstinspires.ftc.teamcode.opmode.Auto.PathSelector;
 import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.opmode.Auto.pedro.Constants;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 
-import static com.pedropathing.api.Paths.*;
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.parallel;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.Scheduler;
-
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.paths.Path;
-
+@Config
 @Autonomous
 public class LeftAuto extends OpMode {
 
-    // Other Constants
-    double initialWaitTime = 10000;
-    double shootingStartDelay = 500;
-    double shootingDelay = 500;
-    double flowerDelay = 3000;
+    // Park side. Pick it during init with gamepad1 or gamepad2 (dpad right = right, dpad left = left).
+    private boolean parkRight = true;
 
     private Robot robot;
     private Intake intake;
     private Shooter shooter;
+    private PathSelector pathSelector;
+    private AutoRobot autoRobot;
+
+    // Alliance whose AprilTags tip detection looks for. Pick it during init with gamepad1 or gamepad2 (X = blue, B = red).
+    private String tipAlliance = "red";
 
     // Pedro
     private Follower follower;
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose startPos = poseFactory.of(64.5, 132, 90);
-    private final Pose flower1 = poseFactory.of(48, 128, 90);
-    private final Pose flower1Control1 = poseFactory.of(64.5, 120, 0);
-    private final Pose flower1Control2 = poseFactory.of(48, 100, 0);
-    private final Pose reverseFlower1 = poseFactory.of(58, 130, 179.7409);
-    private final Pose reverseFlower1Control1 = poseFactory.of(48, 115, 0);
-    private final Pose flower2 = poseFactory.of(12, 50, -178.066);
-    private final Pose flower2Control1 = poseFactory.of(25.6679, 115, 0);
-    private final Pose flower2Control2 = poseFactory.of(40, 48, 0);
-    private final Pose scoreFlower2 = poseFactory.of(58, 130, -178.7932);
-    private final Pose scoreFlower2Control1 = poseFactory.of(35, 48, 0);
-    private final Pose scoreFlower2Control2 = poseFactory.of(26, 130, 0);
-    private final Pose park = poseFactory.of(15, 115, 0);
+    private final Pose secondary = poseFactory.of(57, 119, 270);
 
-    public Path flower1() {
-        return curve(startPos, flower1Control1, flower1Control2, flower1).constant(flower1);
+    private final Pose startPos = poseFactory.of(61.5, 137.2, 180);
+
+    private final Pose secondaryToRightPark = poseFactory.of(16, 95, 0);
+    private final Pose secondaryToRightParkC1 = poseFactory.of(40, 95, 0);
+
+    private final Pose secondaryToLeftPark = poseFactory.of(16, 120, 0);
+
+
+    public Path toSecondary() {
+        return Paths.line(startPos, secondary).linear(startPos, poseFactory.of(0, 0, 90));
     }
 
-    public Path reverseFlower1() {
-        return curve(flower1, reverseFlower1Control1, reverseFlower1).reverseTangent();
+    public Path secondaryToRightPark() {
+        return Paths.curve(secondary, secondaryToRightParkC1, secondaryToRightPark).constant(secondaryToRightPark);
     }
 
-    public Path flower2() {
-        return curve(reverseFlower1, flower2Control1, flower2Control2, flower2).tangent();
+    public Path secondaryToLeftPark() {
+        return Paths.line(secondary, secondaryToLeftPark).constant(secondaryToLeftPark);
     }
 
-    public Path scoreFlower2() {
-        return curve(flower2, scoreFlower2Control1, scoreFlower2Control2, scoreFlower2).reverseTangent();
-    }
-
-    public Path park() {
-        return line(scoreFlower2, park);
-    }
 
     private Command autoRoutine() {
         return sequential(
-                waitMs(initialWaitTime),
-                intake.transferOn(),
-                waitMs(shootingDelay),
-                parallel(
-                        sequential(
-                                waitMs(200),
-                                intake.closeGate()
-                        ),
-                        follow(follower, flower1()),
-                        sequential(
-                                waitMs(200),
-                                intake.flowerDown()
-                        )
-                ),
-                waitMs(flowerDelay),
-                parallel(
-                        follow(follower, reverseFlower1()),
-                        sequential(
-                                waitMs(200),
-                                intake.flowerUp(),
-                                waitMs(200),
-                                intake.intakeDown()//,
-                                //intake.intakeOff()
-                        )
-                ),
-                waitMs(shootingStartDelay),
-                intake.transferOn(),
-                waitMs(shootingDelay),
-                parallel(
-                        sequential(
-                                waitMs(200),
-                                intake.closeGate()
-                        ),
-                        follow(follower, flower2()),
-                        sequential(
-                                waitMs(200),
-                                intake.flowerDown()
-                        )
-                ),
-                waitMs(flowerDelay),
-                parallel(
-                        follow(follower, scoreFlower2()),
-                        sequential(
-                                waitMs(200),
-                                intake.flowerUp(),
-                                waitMs(200),
-                                intake.intakeDown()//,
-                                //intake.intakeOff()
-                        )
-                ),
-                waitMs(shootingStartDelay),
-                intake.transferOn(),
-                waitMs(shootingDelay),
-                follow(follower, park())
+
+                // Preloads
+                follow(follower, toSecondary()),
+                waitMs(AutoConstants.INITIAL_WAIT_TIME),
+                pathSelector.shootWhenTipped(),
+
+                // Park
+                pathSelector.park(secondaryToRightPark(), secondaryToLeftPark(), parkRight)
+
         );
     }
 
@@ -151,10 +100,40 @@ public class LeftAuto extends OpMode {
         shooter = new Shooter(hardwareMap, robot);
         shooter.init();
 
+        autoRobot = new AutoRobot(shooter, intake, follower);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+    }
+
+    @Override
+    public void init_loop() {
+
+        if (gamepad1.x || gamepad2.x) {
+            tipAlliance = "blue";
+        } else if (gamepad1.b || gamepad2.b) {
+            tipAlliance = "red";
+        }
+
+        if (gamepad1.dpad_right || gamepad2.dpad_right) {
+            parkRight = true;
+        } else if (gamepad1.dpad_left || gamepad2.dpad_left) {
+            parkRight = false;
+        }
+
+        telemetry.addData("Tip detection alliance", tipAlliance);
+        telemetry.addLine("gamepad1/2: X = blue, B = red");
+        telemetry.addData("Park side", parkRight ? "right" : "left");
+        telemetry.addLine("gamepad1/2: dpad right = right, dpad left = left");
+        telemetry.update();
+
     }
 
     @Override
     public void start() {
+
+        // Built here (not in init) so it gets the alliance picked during init_loop
+        pathSelector = new PathSelector(follower, shooter, intake, robot, autoRobot, tipAlliance);
 
         schedule(autoRoutine());
 

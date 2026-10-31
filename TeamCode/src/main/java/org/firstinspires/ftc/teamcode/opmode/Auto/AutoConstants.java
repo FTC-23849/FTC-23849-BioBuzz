@@ -11,5 +11,6 @@ public class AutoConstants {
     public static final double INTAKE_WAIT_TIME = 700;
 
     public static final double TIP_DETECTION_WAIT_TIME = 300;
+    public static final double TIP_DELAY = 1000;
 
 }

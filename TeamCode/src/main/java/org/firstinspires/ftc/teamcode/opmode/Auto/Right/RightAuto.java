@@ -1,148 +1,185 @@
 package org.firstinspires.ftc.teamcode.opmode.Auto.Right;
 
+import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
-import com.pedropathing.paths.interpolator.Interpolator;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.opmode.Auto.AutoConstants;
+import org.firstinspires.ftc.teamcode.opmode.Auto.AutoRobot;
+import org.firstinspires.ftc.teamcode.opmode.Auto.PathSelector;
 import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.opmode.Auto.pedro.Constants;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 
-import static com.pedropathing.api.Paths.*;
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.parallel;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.Scheduler;
-
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.pedropathing.paths.Path;
-
+@Config
 @Autonomous
 public class RightAuto extends OpMode {
 
-    // Other Constants
-    double initialWaitTime = 1000;
-    double shootingStartDelay = 500;
-    double shootingDelay = 500;
-    double flowerDelay = 2500;
+    // Park side. Pick it during init with gamepad1 or gamepad2 (dpad right = right, dpad left = left).
+    private boolean parkRight = true;
 
     private Robot robot;
     private Intake intake;
     private Shooter shooter;
+    private PathSelector pathSelector;
+    private AutoRobot autoRobot;
+
+    // Alliance whose AprilTags tip detection looks for. Pick it during init with gamepad1 or gamepad2 (X = blue, B = red).
+    private String tipAlliance = "red";
 
     // Pedro
     private Follower follower;
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose startPos = poseFactory.of(53.5, 9, -90);
-    private final Pose path1Start = poseFactory.of(53.5, 9, -90);
-    private final Pose path1 = poseFactory.of(16, 47.0629, 180);
-    private final Pose path1Control1 = poseFactory.of(53.5, 35, 0);
-    private final Pose path1Control2 = poseFactory.of(35, 48, 0);
-    private final Pose point2 = poseFactory.of(53.2737, 20.851, -142.76);
-    private final Pose point2Control1 = poseFactory.of(34.074, 45.8355, 0);
-    private final Pose point2Control2 = poseFactory.of(45.5268, 14.5605, 0);
-    private final Pose point3 = poseFactory.of(15, 4, -176.4442);
-    private final Pose point3Control1 = poseFactory.of(38.5812, 6.6057, 0);
-    private final Pose point4 = poseFactory.of(60, 120, -270);
-    private final Pose point4Control1 = poseFactory.of(70.8507, 5.9923, 0);
-    private final Pose point4Control2 = poseFactory.of(61.915, 24.2427, 0);
-    private final Pose point4Segment2Start = poseFactory.of(59.1759, 121.2475, -174.8806);
-    private final Pose point4Segment2End = poseFactory.of(59.1759, 121.2475, 90);
-    private final Pose point5 = poseFactory.of(48, 125, 94.4625);
-    private final Pose point5Control1 = poseFactory.of(47.0482, 106.9387, 0);
-    private final Pose point6 = poseFactory.of(15, 111.227, 3.7768);
-    private final Pose point6Control1 = poseFactory.of(46.7674, 113.7467, 0);
+    private final Pose primary = poseFactory.of(57, 23, -90);
+    private final Pose secondary = poseFactory.of(57, 119, 270);
 
-    public Path flower1() {
-        return curve(path1Start, path1Control1, path1Control2, path1).linear(path1Start, path1);
-    }
+    private final Pose startPos = poseFactory.of(61.5, 6.8, 180);
+    private final Pose intakeLine = poseFactory.of(11, 6.8, 180);
 
-    public Path scoreFlower1() {
-        return curve(path1, point2Control1, point2Control2, point2).reverseTangent();
-    }
+    private final Pose lineToPrimaryControl1 = poseFactory.of(57, 6.8, 0);
+    private final Pose primaryToSecondaryReverseControl1 = poseFactory.of(61, 72, 0);
+
+    private final Pose flower1 = poseFactory.of(14, 48, 180);
+    private final Pose flower2 = poseFactory.of(48, 130, 90);
+
+    private final Pose primaryToFlower1C1 = poseFactory.of(40, 23, 0);
+    private final Pose primaryToFlower1C2 = poseFactory.of(32, 48, 0);
+
+    private final Pose primaryToFlower2C1 = poseFactory.of(70, 85, 0);
+    private final Pose primaryToFlower2C2 = poseFactory.of(48, 110, 0);
+
+    private final Pose secondaryToFlower1C1 = poseFactory.of(16, 119, 0);
+    private final Pose secondaryToFlower1C2 = poseFactory.of(56, 46, 0);
+
+    private final Pose secondaryToFlower2C1 = poseFactory.of(48, 100, 0);
+
+    private final Pose flower1ToSecondaryC1 = poseFactory.of(50, 46, 0);
+    private final Pose flower1ToSecondaryC2 = poseFactory.of(10, 119, 0);
+
+    private final Pose flower2ToPrimaryC1 = poseFactory.of(65, 100, 0);
+    private final Pose flower2ToSecondaryC1 = poseFactory.of(48, 100, 0);
+
+    private final Pose primaryToRightPark = poseFactory.of(14, 95, 0);
+    private final Pose primaryToRightParkC1 = poseFactory.of(24, 42, 0);
+
+    private final Pose primaryToLeftPark = poseFactory.of(19, 120, 0);
+    private final Pose primaryToLeftParkC1 = poseFactory.of(11, 34, 0);
+    private final Pose primaryToLeftParkC2 = poseFactory.of(50, 120, 0);
+
+    private final Pose secondaryToRightPark = poseFactory.of(16, 95, 0);
+    private final Pose secondaryToRightParkC1 = poseFactory.of(40, 95, 0);
+
+    private final Pose secondaryToLeftPark = poseFactory.of(16, 120, 0);
+
 
     public Path intakeLine() {
-        return curve(point2, point3Control1, point3).tangent();
+        return Paths.line(startPos, intakeLine).constant(intakeLine);
     }
 
-    public Path scoreLine() {
-        return curve(point3, point4Control1, point4Control2, point4).heading(Interpolator.piecewise().until(0.0869, Interpolator.tangent.reverse()).until(1, Interpolator.linear(point4Segment2Start, point4Segment2End)));
+    public Path lineToPrimary() {
+        return Paths.curve(intakeLine, lineToPrimaryControl1, primary).reverseTangent();
     }
 
-    public Path flower2() {
-        return curve(point4, point5Control1, point5).constant(point5);
+    public Path primaryToSecondary() {
+        return Paths.curve(primary, primaryToSecondaryReverseControl1, secondary).constant(poseFactory.of(0, 0, 250));
     }
 
-    public Path park() {
-        return curve(point5, point6Control1, point6).tangent();
+    public Path secondaryToPrimary() {
+        return Paths.curve(secondary, primaryToSecondaryReverseControl1, primary).constant(poseFactory.of(0, 0, 90));
     }
+
+    public Path primaryToFlower1() {
+        return Paths.curve(primary, primaryToFlower1C1, primaryToFlower1C2, flower1).tangent();
+    }
+
+    public Path secondaryToFlower1() {
+        return Paths.curve(secondary, secondaryToFlower1C1, secondaryToFlower1C2, flower1).tangent();
+    }
+
+    public Path flower1ToPrimary() {
+        return Paths.line(flower1, primary).linear(flower1, poseFactory.of(0, 0, 270));
+    }
+
+    public Path flower1ToSecondary() {
+        return Paths.curve(flower1, flower1ToSecondaryC1, flower1ToSecondaryC2, secondary).linear(flower1, poseFactory.of(0, 0, 90));
+    }
+
+    public Path primaryToFlower2() {
+        return Paths.curve(primary, primaryToFlower2C1, primaryToFlower2C2, flower2).tangent();
+    }
+
+    public Path secondaryToFlower2() {
+        return Paths.curve(secondary, secondaryToFlower2C1, flower2).constant(poseFactory.of(0, 0, 90));
+    }
+
+    public Path flower2ToPrimary() {
+        return Paths.curve(flower2, flower2ToPrimaryC1, primary).constant(poseFactory.of(0, 0, 270));
+    }
+
+    public Path flower2ToSecondary() {
+        return Paths.curve(flower2, flower2ToSecondaryC1, secondary).constant(poseFactory.of(0, 0, 90));
+    }
+
+    public Path primaryToRightPark() {
+        return Paths.curve(primary, primaryToRightParkC1, primaryToRightPark).tangent();
+    }
+
+    public Path primaryToLeftPark() {
+        return Paths.curve(primary, primaryToLeftParkC1, primaryToLeftParkC2, primaryToLeftPark).linear(primary, primaryToLeftPark);
+    }
+
+    public Path secondaryToRightPark() {
+        return Paths.curve(secondary, secondaryToRightParkC1, secondaryToRightPark).constant(secondaryToRightPark);
+    }
+
+    public Path secondaryToLeftPark() {
+        return Paths.line(secondary, secondaryToLeftPark).constant(secondaryToLeftPark);
+    }
+
 
     private Command autoRoutine() {
         return sequential(
-                waitMs(initialWaitTime),
-                intake.transferOn(),
-                waitMs(shootingDelay),
-                parallel(
-                        sequential(
-                                waitMs(200),
-                                intake.closeGate()
-                        ),
-                        follow(follower, flower1()),
-                        sequential(
-                                waitMs(200),
-                                intake.flowerDown()
-                        )
-                ),
-                waitMs(flowerDelay),
-                parallel(
-                        follow(follower, scoreFlower1()),
-                        sequential(
-                                waitMs(200),
-                                intake.flowerUp(),
-                                waitMs(200),
-                                intake.intakeDown()//,
-                                //intake.intakeOff()
-                        )
-                ),
-                waitMs(shootingStartDelay),
-                intake.transferOn(),
-                waitMs(shootingDelay),
-                parallel(
-                        sequential(
-                                waitMs(200),
-                                intake.closeGate()
-                        ),
-                        follow(follower, intakeLine())
-                ),
-                waitMs(700),
-                follow(follower, scoreLine()),
-                waitMs(shootingStartDelay),
-                intake.transferOn(),
-                waitMs(shootingDelay),
-                parallel(
-                        sequential(
-                                waitMs(200),
-                                intake.closeGate()
-                        ),
-                        follow(follower, flower2()),
-                        sequential(
-                                waitMs(200),
-                                intake.flowerDown()
-                        )
-                ),
-                waitMs(flowerDelay),
-                intake.transferOn(),
-                waitMs(3000),
-                follow(follower, park())
+
+                // Preloads
+                waitMs(AutoConstants.INITIAL_WAIT_TIME),
+                autoRobot.shoot(),
+
+                // Line
+                autoRobot.followAndIntake(intakeLine()),
+                waitMs(AutoConstants.INTAKE_WAIT_TIME), // Let balls intake
+                pathSelector.toShootingSpot(lineToPrimary()),
+                pathSelector.shootAtBestSpot(primaryToSecondary()),
+
+                // Flower 1
+                pathSelector.toPickup(primaryToFlower1(), secondaryToFlower1(), true),
+                waitMs(AutoConstants.FLOWER_WAIT_TIME), // Let balls intake
+                pathSelector.toShootingSpot(flower1ToPrimary(), flower1ToSecondary()),
+                pathSelector.shootAtBestSpot(primaryToSecondary(), secondaryToPrimary()),
+
+                // Flower 2
+                pathSelector.toPickup(primaryToFlower2(), secondaryToFlower2(), true),
+                waitMs(AutoConstants.FLOWER_WAIT_TIME), // Let balls intake
+                pathSelector.toShootingSpot(flower2ToPrimary(), flower2ToSecondary()),
+                pathSelector.shootAtBestSpot(primaryToSecondary(), secondaryToPrimary()),
+
+                // Park
+                pathSelector.park(primaryToRightPark(), primaryToLeftPark(), secondaryToRightPark(), secondaryToLeftPark(), parkRight)
 
         );
     }
@@ -164,10 +201,40 @@ public class RightAuto extends OpMode {
         shooter = new Shooter(hardwareMap, robot);
         shooter.init();
 
+        autoRobot = new AutoRobot(shooter, intake, follower);
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+    }
+
+    @Override
+    public void init_loop() {
+
+        if (gamepad1.x || gamepad2.x) {
+            tipAlliance = "blue";
+        } else if (gamepad1.b || gamepad2.b) {
+            tipAlliance = "red";
+        }
+
+        if (gamepad1.dpad_right || gamepad2.dpad_right) {
+            parkRight = true;
+        } else if (gamepad1.dpad_left || gamepad2.dpad_left) {
+            parkRight = false;
+        }
+
+        telemetry.addData("Tip detection alliance", tipAlliance);
+        telemetry.addLine("gamepad1/2: X = blue, B = red");
+        telemetry.addData("Park side", parkRight ? "right" : "left");
+        telemetry.addLine("gamepad1/2: dpad right = right, dpad left = left");
+        telemetry.update();
+
     }
 
     @Override
     public void start() {
+
+        // Built here (not in init) so it gets the alliance picked during init_loop
+        pathSelector = new PathSelector(follower, shooter, intake, robot, autoRobot, tipAlliance);
 
         schedule(autoRoutine());
 
