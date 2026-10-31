@@ -26,12 +26,12 @@ public class Constants {
     public static double blockBall = 0.510;
     public static double releaseBall = 0.380;
 
-    public static double kP = 0.004;
+    public static double kP = 0.006;
     public static double kI = 0.0;
-    public static double kD = 0.00003;
+    public static double kD = 0.00004;
     public static double kS = 0.1;
     public static double kV = 0.00035;
-    public static double nominalVoltage = 12.5;
+    public static double nominalVoltage = 13.2;
     public static double maxIntegralPower = 0.2;
 
     public static double hoodUp = 0.25;
@@ -39,11 +39,12 @@ public class Constants {
     public static double hoodMinAngle = 10;
     public static double hoodMaxAngle = 35;
 
-    public static double shooterHeight = 365 / 25.4;
+    public static double shooterHeight = 369 / 25.4;
     public static double hiveHeight = 60;
-    public static double apexAboveGoal = 6;
-    public static double closeShotStartDist = 65;
-    public static double closeShotMaxExtraAngle = 8;
+    public static double entryAngle = -30;
+    public static double hoodLogicDistThreshold = 60;
+    public static double closeShotDist = 25;
+    public static double closeLaunchAngle = 70.1;
 
 
     // Turret

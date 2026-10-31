@@ -23,9 +23,9 @@ public class Shooter {
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static String shotDistances  = "25,30,40,50,60,72,80,93,100";
-    public static String shotVelocities = "1180,1240,1220,1300,1340,1300,1350,1410,1480";
-    public static int maxShotCurveDegree = 6;
+    public static String shotDistances  = "25,40,50,60,70,80,93,100";
+    public static String shotVelocities = "1040,1120,1200,1300,1350,1390,1440,1480";
+    public static int maxShotCurveDegree = 3;
     String parsedDistances = null;
     String parsedVelocities = null;
     int parsedDegree = -1;
@@ -106,25 +106,23 @@ public class Shooter {
         return Math.max(0, shotCurve.value(distanceFromTarget));
     }
 
-    double apexLaunchAngle(double d){
-        double h = hiveHeight - shooterHeight;
-        double H = h + apexAboveGoal;
-        if(d <= 0 || H <= 0){
+    double entryLaunchAngle(double d){
+        if(d <= 0){
             return 90 - hoodMinAngle;
         }
-        double s = Math.sqrt(1 - h / H);
-        double slope = 2 * H * (1 + s) / d;
+        double h = hiveHeight - shooterHeight;
+        double slope = 2 * h / d - Math.tan(Math.toRadians(entryAngle));
         return Math.toDegrees(Math.atan(slope));
     }
 
     public double calculateLaunchAngle(double distanceFromTarget){
-        double angle = apexLaunchAngle(distanceFromTarget);
-        double knee = apexLaunchAngle(closeShotStartDist);
-        double extra = angle - knee;
-        if(extra <= 0 || closeShotMaxExtraAngle <= 0){
-            return angle;
+        double d = distanceFromTarget;
+        if(d >= hoodLogicDistThreshold || hoodLogicDistThreshold <= closeShotDist){
+            return entryLaunchAngle(d);
         }
-        return knee + extra / (1 + extra / closeShotMaxExtraAngle);
+        double thresholdAngle = entryLaunchAngle(hoodLogicDistThreshold);
+        double t = (d - closeShotDist) / (hoodLogicDistThreshold - closeShotDist);
+        return closeLaunchAngle + (thresholdAngle - closeLaunchAngle) * t;
     }
 
     public double calculateHoodPosition(double distanceFromTarget){

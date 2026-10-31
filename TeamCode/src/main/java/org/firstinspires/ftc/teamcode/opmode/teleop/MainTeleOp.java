@@ -21,7 +21,7 @@ public class MainTeleOp extends OpMode {
     public static boolean showServoStates = false;
     boolean testingShooter = false;
     boolean testingTurret = false;
-    public static double turretAdjustment = -0.01;
+    public static double turretAdjustment = 0;
     public static double powerAdjustment = 0;
     boolean aim = false;
     boolean sotm = false;
