@@ -15,22 +15,24 @@ public class Constants {
     public static double
             intakePower = 1.000;
     public static double reverseIntakePower = -1.000;
-    public static double dropDownIntakeDown = 0.63;
-    public static double dropDownIntakeFlower = 0.7;
-    public static double dropDownIntakeUp = 0.43;
-    public static double flowerIntakeDown = 0.520;
-    public static double flowerIntakeUp = 0.93;
+    public static double dropDownIntakeDown = 0.57;
+    public static double dropDownIntakeFlower = 0.45;
+    public static double dropDownIntakeUp = 0.37;
+    public static double flowerIntakeDown = 0.7;
+    public static double flowerIntakeUp = 0.97;
     // Misc
 
     // Shooter
     public static double blockBall = 0.510;
     public static double releaseBall = 0.380;
 
-    public static double kP = 0.008;
+    public static double kP = 0.004;
     public static double kI = 0.0;
-    public static double kD = 0.00006;
+    public static double kD = 0.00003;
     public static double kS = 0.1;
     public static double kV = 0.00035;
+    public static double nominalVoltage = 12.5;
+    public static double maxIntegralPower = 0.2;
 
     public static double hoodUp = 0.25;
     public static double hoodDown = 0.43;

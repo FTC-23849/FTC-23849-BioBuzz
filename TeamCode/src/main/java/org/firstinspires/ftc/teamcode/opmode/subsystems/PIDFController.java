@@ -9,6 +9,7 @@ public class PIDFController {
     private double kD;
     private double kS;
     private double kV;
+    private double maxIntegralPower = 0.2;
 
     private double targetVelocity;
     private double integralSum = 0.0;
@@ -33,18 +34,30 @@ public class PIDFController {
 
         double error = targetVelocity - currentVelocity;
 
-        integralSum += error * dt;
         double derivative = (error - lastError) / dt;
         lastError = error;
-
-        double pid = (kP * error) + (kI * integralSum) + (kD * derivative);
 
         double ff = 0;
         if (targetVelocity != 0) {
             ff = (kV * targetVelocity) + (kS * Math.signum(targetVelocity));
         }
 
-        return Math.max(-1.0, Math.min(1.0, pid + ff));
+        double withoutI = (kP * error) + (kD * derivative) + ff;
+        double output = withoutI + (kI * integralSum);
+        boolean pushingPastMax = output >= 1.0 && error > 0;
+        boolean pushingPastMin = output <= -1.0 && error < 0;
+        if (!pushingPastMax && !pushingPastMin) {
+            integralSum += error * dt;
+        }
+
+        if (kI != 0) {
+            double maxSum = maxIntegralPower / Math.abs(kI);
+            integralSum = Math.max(-maxSum, Math.min(maxSum, integralSum));
+        } else {
+            integralSum = 0.0;
+        }
+
+        return Math.max(-1.0, Math.min(1.0, withoutI + (kI * integralSum)));
     }
 
     public void reset() {
@@ -60,6 +73,10 @@ public class PIDFController {
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
+    }
+
+    public void setMaxIntegralPower(double maxIntegralPower) {
+        this.maxIntegralPower = Math.abs(maxIntegralPower);
     }
 
     public void setFeedforward(double kS, double kV) {

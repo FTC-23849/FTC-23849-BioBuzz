@@ -125,6 +125,7 @@ public class Robot {
         telemetry.addData("Launch angle (deg)", shooter.launchAngle);
         telemetry.addData("Hood angle (deg)", shooter.hoodAngle);
         telemetry.addData("Shot table error", shooter.shotTableError);
+        telemetry.addData("Battery voltage", shooter.batteryVoltage);
         telemetry.addData("Left turret servo pos", turret.leftTurret.getPosition());
         telemetry.addData("Right turret servo pos", turret.rightTurret.getPosition());
     }

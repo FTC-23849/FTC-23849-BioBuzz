@@ -116,7 +116,7 @@ public class MainTeleOp extends OpMode {
             robot.shooter.release();
         }
 
-        if(gamepad1.y){
+        if(gamepad1.left_bumper){
             robot.intake.flowerIntakeDown();
         }
 

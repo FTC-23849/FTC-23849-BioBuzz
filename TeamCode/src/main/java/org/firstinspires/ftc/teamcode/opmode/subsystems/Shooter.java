@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.*;
 
@@ -40,7 +42,23 @@ public class Shooter {
     double currVelocity = 0;
     double targetVelocity = 0;
     double velocityError = 0;
+    VoltageSensor voltageSensor;
+    ElapsedTime voltageTimer = new ElapsedTime();
+    double batteryVoltage = nominalVoltage;
 
+    void updateBatteryVoltage(){
+        if(voltageTimer.milliseconds() > 250){
+            double reading = voltageSensor.getVoltage();
+            if(reading > 0){
+                batteryVoltage = 0.8 * batteryVoltage + 0.2 * reading;
+            }
+            voltageTimer.reset();
+        }
+    }
+
+    double compensateVoltage(double power){
+        return Math.max(-1.0, Math.min(1.0, power * nominalVoltage / batteryVoltage));
+    }
 
     double[] parseList(String text){
         String[] values = text.trim().split(",", -1);
@@ -155,6 +173,12 @@ public class Shooter {
         hood = hwmap.get(ServoImplEx.class, "hood");
         stopper = hwmap.get(ServoImplEx.class, "stopper");
         flywheelPIDF = new PIDFController(0, kP, kI, kD, kS, kV);
+        voltageSensor = hwmap.voltageSensor.iterator().next();
+        batteryVoltage = voltageSensor.getVoltage();
+        if(batteryVoltage <= 0){
+            batteryVoltage = nominalVoltage;
+        }
+        voltageTimer.reset();
         topShooter.setDirection(DcMotorSimple.Direction.REVERSE);
         hood.setPosition(hoodUp);
     }
@@ -175,8 +199,10 @@ public class Shooter {
         //re-read gains every loop so FTC Dashboard edits apply live
         flywheelPIDF.setPID(kP, kI, kD);
         flywheelPIDF.setFeedforward(kS, kV);
+        flywheelPIDF.setMaxIntegralPower(maxIntegralPower);
 
         refreshShotTable();
+        updateBatteryVoltage();
 
         //target and distance are always calculated so they show in telemetry
         targetDist = calculateTargetDist(robot.dt.getRobotPos());
@@ -198,7 +224,7 @@ public class Shooter {
                 targetVelocity = Math.max(0, calculateShotSpeed(targetDist) + robot.powerAdjustment);
             }
             flywheelPIDF.setTargetVelocity(targetVelocity);
-            double PIDOutputPower = flywheelPIDF.update(currVelocity);
+            double PIDOutputPower = compensateVoltage(flywheelPIDF.update(currVelocity));
             topShooter.setPower(PIDOutputPower);
             bottomShooter.setPower(PIDOutputPower);
         }else{
@@ -216,8 +242,10 @@ public class Shooter {
         //re-read gains every loop so FTC Dashboard edits apply live
         flywheelPIDF.setPID(kP, kI, kD);
         flywheelPIDF.setFeedforward(kS, kV);
+        flywheelPIDF.setMaxIntegralPower(maxIntegralPower);
 
         refreshShotTable();
+        updateBatteryVoltage();
 
         //target and distance are always calculated so they show in telemetry
         targetDist = calculateTargetDist(robotX, robotY);
@@ -237,7 +265,7 @@ public class Shooter {
                 targetVelocity = Math.max(0, calculateShotSpeed(targetDist) + robot.powerAdjustment);
             }
             flywheelPIDF.setTargetVelocity(targetVelocity);
-            double PIDOutputPower = flywheelPIDF.update(currVelocity);
+            double PIDOutputPower = compensateVoltage(flywheelPIDF.update(currVelocity));
             topShooter.setPower(PIDOutputPower);
             bottomShooter.setPower(PIDOutputPower);
         }else{
