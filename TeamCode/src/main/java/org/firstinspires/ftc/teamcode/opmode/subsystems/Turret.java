@@ -109,10 +109,10 @@ public class Turret {
         double servoPosition = turretBackCenterPos - (turretAngle - 180)/turretRangeDeg;
 
         if (servoPosition < 0){
-            servoPosition += 1;
+            servoPosition += 360 / turretRangeDeg;
         }
         if (servoPosition > 1){
-            servoPosition -= 1;
+            servoPosition -= 360 / turretRangeDeg;
         }
 
         return Math.max(0.161, Math.min(servoPosition,0.894));
@@ -135,10 +135,10 @@ public class Turret {
         double servoPosition = turretBackCenterPos - (turretAngle - 180)/turretRangeDeg;
 
         if (servoPosition < 0){
-            servoPosition += 1;
+            servoPosition += 360 / turretRangeDeg;
         }
         if (servoPosition > 1){
-            servoPosition -= 1;
+            servoPosition -= 360 / turretRangeDeg;
         }
         servoPosition += turretOffset;
         servoPosition += robot.turretAdjustment;
