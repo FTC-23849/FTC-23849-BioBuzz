@@ -48,11 +48,11 @@ public class Constants {
 
 
     // Turret
-    public static double turretBackCenterPos = 0.47;
+    public static double turretBackCenterPos = 0.478;
     public static double turretOffset = 0;
     public static double turretAdjustmentStep = 0.01;
     public static double powerAdjustmentStep = 10;
-    public static double turretRangeDeg = 350 * (60/20) * (35.0/99);
+    public static double turretRangeDeg = 360 * (60/20) * (35.0/99);
     public static double rightLimit = 0;
     public static double leftLimit = 1;
 }
