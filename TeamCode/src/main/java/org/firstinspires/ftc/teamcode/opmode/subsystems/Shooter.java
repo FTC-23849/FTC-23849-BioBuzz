@@ -17,17 +17,21 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
+import java.util.Arrays;
+
 @Config
 public class Shooter {
     public HardwareMap hwmap;
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static String shotDistances  = "25,40,50,60,70,80,93,100";
-    public static String shotVelocities = "1040,1120,1200,1300,1350,1390,1440,1480";
+    public static int numOfPointsRegression = 8;
+    public static String[] shotPoints = {
+            "25,1040", "40,1120", "50,1200", "60,1300", "70,1350", "80,1390", "93,1440", "100,1480",
+            "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
+    };
     public static int maxShotCurveDegree = 3;
-    String parsedDistances = null;
-    String parsedVelocities = null;
+    String[] parsedPoints = null;
     int parsedDegree = -1;
     PolynomialFunction shotCurve = null;
     public String shotTableError = "table not parsed yet";
@@ -60,30 +64,29 @@ public class Shooter {
         return Math.max(-1.0, Math.min(1.0, power * nominalVoltage / batteryVoltage));
     }
 
-    double[] parseList(String text){
-        String[] values = text.trim().split(",", -1);
-        double[] parsed = new double[values.length];
-        for (int i = 0; i < values.length; i++) {
-            parsed[i] = Double.parseDouble(values[i].trim());
-        }
-        return parsed;
-    }
-
     void refreshShotTable(){
-        if(shotDistances.equals(parsedDistances) && shotVelocities.equals(parsedVelocities)
-                && maxShotCurveDegree == parsedDegree){
+        int count = Math.max(0, Math.min(numOfPointsRegression, shotPoints.length));
+        String[] used = Arrays.copyOf(shotPoints, count);
+        if(Arrays.equals(used, parsedPoints) && maxShotCurveDegree == parsedDegree){
             return;
         }
-        parsedDistances = shotDistances;
-        parsedVelocities = shotVelocities;
+        parsedPoints = used;
         parsedDegree = maxShotCurveDegree;
         try{
-            double[] dists = parseList(shotDistances);
-            double[] vels = parseList(shotVelocities);
-            if(dists.length != vels.length){
-                throw new IllegalArgumentException(dists.length + " distances but " + vels.length + " velocities");
+            double[] dists = new double[count];
+            double[] vels = new double[count];
+            for (int i = 0; i < count; i++) {
+                String[] parts = used[i].split(",");
+                if(parts.length != 2){
+                    throw new IllegalArgumentException("point " + i + " should be distance,velocity but is \"" + used[i] + "\"");
+                }
+                dists[i] = Double.parseDouble(parts[0].trim());
+                vels[i] = Double.parseDouble(parts[1].trim());
             }
-            if(dists.length < 2){
+            if(numOfPointsRegression > count){
+                throw new IllegalArgumentException("numOfPointsRegression is " + numOfPointsRegression + " but list only holds " + count);
+            }
+            if(count < 2){
                 throw new IllegalArgumentException("need at least 2 points");
             }
             WeightedObservedPoints points = new WeightedObservedPoints();
