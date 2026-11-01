@@ -151,18 +151,18 @@ public class Turret {
         if(aimTurret && robot.testingTurret){
             turretPos = robot.turretPositionTesting;
             leftTurret.setPosition(turretPos);
-            rightTurret.setPosition(turretPos);
+            rightTurret.setPosition(turretPos + turretServoDifference);
         }else if(aimTurret){
             robotPos = robot.dt.getRobotPos();
             robotAngleUnsigned = robot.dt.getRobotAngle();
             turretPos = calculateTurretServoPosition(robotPos, robotAngleUnsigned);
             leftTurret.setPosition(turretPos);
-            rightTurret.setPosition(turretPos);
+            rightTurret.setPosition(turretPos + turretServoDifference);
         }else{
             //turret is centered, so it points straight backward relative to the robot
             turretAngle = 180;
             leftTurret.setPosition(turretBackCenterPos);
-            rightTurret.setPosition(turretBackCenterPos);
+            rightTurret.setPosition(turretBackCenterPos + turretServoDifference);
         }
     }
 
@@ -171,16 +171,16 @@ public class Turret {
         if(aimTurret && robot.testingTurret){
             turretPos = robot.turretPositionTesting;
             leftTurret.setPosition(turretPos);
-            rightTurret.setPosition(turretPos);
+            rightTurret.setPosition(turretPos + turretServoDifference);
         }else if(aimTurret){
             turretPos = calculateTurretServoPositionAuto(robotX, robotY, robotAngleUnsigned);
             leftTurret.setPosition(turretPos);
-            rightTurret.setPosition(turretPos);
+            rightTurret.setPosition(turretPos + turretServoDifference);
         }else{
             //turret is centered, so it points straight backward relative to the robot
             turretAngle = 180;
             leftTurret.setPosition(turretBackCenterPos);
-            rightTurret.setPosition(turretBackCenterPos);
+            rightTurret.setPosition(turretBackCenterPos + turretServoDifference);
         }
     }
 }

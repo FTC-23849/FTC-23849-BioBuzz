@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.powerAd
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.turretAdjustmentStep;
 
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.opmode.subsystems.Misc;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 //testing commit
 @Config
@@ -19,6 +20,7 @@ public class MainTeleOp extends OpMode {
     public static double flywheelSpeedTesting = 900;
     public static double hoodPositionTesting = 0.25;
     public static boolean showServoStates = false;
+    public static boolean showCurrentDraw = false;
     boolean testingShooter = false;
     boolean testingTurret = false;
     public static double turretAdjustment = 0;
@@ -36,12 +38,18 @@ public class MainTeleOp extends OpMode {
     @Override
     public void init_loop() {
         robot.initLoop();
+        if(gamepad2.dpad_left){
+            robot.misc.logging = false;
+        }
+        telemetry.addData("Current logging", robot.misc.logging ? "ON (gamepad2 dpad left to disable)" : "OFF");
+        telemetry.update();
     }
 
     @Override
     public void start() {
         robot.start();
         robot.misc.limelight.stop();
+        robot.misc.startLogging();
     }
 
     @Override
@@ -73,6 +81,7 @@ public class MainTeleOp extends OpMode {
         robot.hoodPositionTesting = hoodPositionTesting;
         robot.turretPositionTesting = turretPositionTesting;
         robot.flywheelSpeedTesting = flywheelSpeedTesting;
+        robot.misc.showCurrentDraw = showCurrentDraw;
         robot.update(aim, sotm, alliance);
         robot.addTelemetry();
         telemetry.addData("cfg flywheelSpeedTesting", flywheelSpeedTesting);
@@ -81,6 +90,14 @@ public class MainTeleOp extends OpMode {
             telemetry.addData("Flower intake servo pos", robot.intake.flowerIntake.getPosition());
             telemetry.addData("Hood servo pos", robot.shooter.hood.getPosition());
             telemetry.addData("Stopper servo pos", robot.shooter.stopper.getPosition());
+        }
+        telemetry.addData("Current log", robot.misc.logStatus);
+        telemetry.addData("Intake current (A)", robot.misc.intakeCurrent);
+        telemetry.addData("Intake full", robot.misc.intakeFull);
+        if(showCurrentDraw){
+            for (int i = 0; i < Misc.MOTOR_NAMES.length; i++) {
+                telemetry.addData(Misc.MOTOR_NAMES[i] + " current (A)", robot.misc.currents[i]);
+            }
         }
         telemetry.update();
         robot.dt.driveRobot(gamepad1);

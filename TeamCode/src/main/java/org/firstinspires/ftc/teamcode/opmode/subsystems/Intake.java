@@ -11,20 +11,28 @@ public class Intake {
     public HardwareMap hwmap;
     public DcMotorEx leftIntake, rightIntake;
     public ServoImplEx dropdownIntake, flowerIntake;
+    public boolean running = false;
+    public boolean outtaking = false;
     public Intake(HardwareMap hwmap){
         this.hwmap = hwmap;
     }
 
     public void transferBalls(){
+        running = true;
+        outtaking = false;
         leftIntake.setPower(transferSpeed);
         rightIntake.setPower(transferSpeed);
     }
     public void reverseIntake(){
+        running = true;
+        outtaking = true;
         leftIntake.setPower(reverseIntakePower);
         rightIntake.setPower(reverseIntakePower);
     }
 
     public void stopIntake(){
+        running = false;
+        outtaking = false;
         leftIntake.setPower(0.0);
         rightIntake.setPower(0.0);
     }
@@ -47,6 +55,8 @@ public class Intake {
                 dropdownIntake.setPosition(dropDownIntakeFlower);
                 break;
         }
+        running = true;
+        outtaking = false;
         leftIntake.setPower(intakePower);
         rightIntake.setPower(intakePower);
     }

@@ -21,6 +21,14 @@ public class Constants {
     public static double flowerIntakeDown = 0.7;
     public static double flowerIntakeUp = 0.97;
     // Misc
+    public static boolean logTele = true;
+    public static double currentLogIntervalMs = 1000;
+    public static double currentDisplayIntervalMs = 250;
+    public static int maxCurrentLogs = 5;
+    public static String currentLogDir = "/sdcard/FIRST/currentLogs";
+    public static double intakeFullCurrent = 4.0;
+    public static double ledFullColor = 0.5;
+    public static double ledIdleColor = 0.0;
 
     // Shooter
     public static double blockBall = 0.510;
@@ -48,11 +56,12 @@ public class Constants {
 
 
     // Turret
-    public static double turretBackCenterPos = 0.478;
+    public static double turretBackCenterPos = 0.456;
     public static double turretOffset = 0;
     public static double turretAdjustmentStep = 0.01;
     public static double powerAdjustmentStep = 10;
     public static double turretRangeDeg = 360 * (60/20) * (35.0/99);
     public static double rightLimit = 0;
     public static double leftLimit = 1;
+    public static double turretServoDifference = 0.017;
 }

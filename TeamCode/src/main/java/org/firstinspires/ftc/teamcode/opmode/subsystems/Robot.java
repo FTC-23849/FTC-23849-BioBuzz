@@ -30,7 +30,7 @@ public class Robot {
         this.telemetry = telemetry;
         dt = new Drivetrain(hwmap);
         intake = new Intake(hwmap);
-        misc = new Misc(hwmap);
+        misc = new Misc(hwmap, this);
         shooter = new Shooter(hwmap, this);
         turret = new Turret(hwmap, this);
 
@@ -40,7 +40,7 @@ public class Robot {
         this.hwmap = hwmap;
         dt = new Drivetrain(hwmap);
         intake = new Intake(hwmap);
-        misc = new Misc(hwmap);
+        misc = new Misc(hwmap, this);
         shooter = new Shooter(hwmap, this);
         turret = new Turret(hwmap, this);
 
