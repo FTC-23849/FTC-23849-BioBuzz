@@ -94,6 +94,7 @@ public class MainTeleOp extends OpMode {
         telemetry.addData("Current log", robot.misc.logStatus);
         telemetry.addData("Intake current (A)", robot.misc.intakeCurrent);
         telemetry.addData("Intake full", robot.misc.intakeFull);
+        telemetry.addData("LED", robot.misc.led == null ? "not in config (name it light)" : robot.misc.led.getPosition());
         if(showCurrentDraw){
             for (int i = 0; i < Misc.MOTOR_NAMES.length; i++) {
                 telemetry.addData(Misc.MOTOR_NAMES[i] + " current (A)", robot.misc.currents[i]);

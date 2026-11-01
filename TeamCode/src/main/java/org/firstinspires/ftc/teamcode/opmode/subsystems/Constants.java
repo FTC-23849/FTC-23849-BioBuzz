@@ -21,14 +21,6 @@ public class Constants {
     public static double flowerIntakeDown = 0.7;
     public static double flowerIntakeUp = 0.97;
     // Misc
-    public static boolean logTele = true;
-    public static double currentLogIntervalMs = 1000;
-    public static double currentDisplayIntervalMs = 250;
-    public static int maxCurrentLogs = 5;
-    public static String currentLogDir = "/sdcard/FIRST/currentLogs";
-    public static double intakeFullCurrent = 4.0;
-    public static double ledFullColor = 0.5;
-    public static double ledIdleColor = 0.0;
 
     // Shooter
     public static double blockBall = 0.510;

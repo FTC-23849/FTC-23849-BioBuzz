@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -23,7 +24,17 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
+@Config
 public class Misc {
+    public static boolean logTele = true;
+    public static double currentLogIntervalMs = 1000;
+    public static double currentDisplayIntervalMs = 250;
+    public static int maxCurrentLogs = 5;
+    public static String currentLogDir = "/sdcard/FIRST/currentLogs";
+    public static double intakeFullCurrent = 6.0;
+    public static double ledFullColor = 0.5;
+    public static double ledIdleColor = 0.279;
+
     public HardwareMap hwmap;
     public Limelight3A limelight;
     Robot robot;
@@ -163,7 +174,7 @@ public class Misc {
         limelight = hwmap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         logging = logTele;
-        led = hwmap.tryGet(ServoImplEx.class, "led");
+        led = hwmap.tryGet(ServoImplEx.class, "light");
         if(led != null){
             led.setPwmRange(new PwmControl.PwmRange(500, 2500));
         }
