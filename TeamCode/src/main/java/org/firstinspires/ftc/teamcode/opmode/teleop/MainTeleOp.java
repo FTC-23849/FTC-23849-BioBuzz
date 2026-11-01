@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.powerAdjustmentStep;
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.turretAdjustmentStep;
+import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.turretBackCenterPos;
 
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Misc;
@@ -16,8 +17,8 @@ import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 @TeleOp(name = "Main TeleOp")
 public class MainTeleOp extends OpMode {
     private Robot robot;
-    public static double turretPositionTesting = 0.5;
-    public static double flywheelSpeedTesting = 900;
+    public static double turretPositionTesting = turretBackCenterPos;
+    public static double flywheelSpeedTesting = 1200;
     public static double hoodPositionTesting = 0.25;
     public static boolean showServoStates = false;
     public static boolean showCurrentDraw = false;
