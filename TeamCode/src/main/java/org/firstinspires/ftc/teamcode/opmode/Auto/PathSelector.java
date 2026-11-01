@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmode.Auto;
 
+import com.pedropathing.api.Paths;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.opmode.Auto.Subsystems.Intake;
@@ -29,6 +31,9 @@ public class PathSelector {
 
     // Which spot we're currently using. Sticks until that spot stops working.
     private boolean atPrimarySpot = true;
+
+    // Set as soon as any park() starts, so the auto knows not to start a timeout park
+    private boolean parkStarted = false;
 
     public PathSelector(Follower follower, Shooter shooter, Intake intake, Robot robot, AutoRobot autoRobot, String alliance) {
         this.follower = follower;
@@ -129,6 +134,7 @@ public class PathSelector {
                         Path secondaryToRight, Path secondaryToLeft,
                         boolean parkRight) {
         return lazy(() -> {
+            parkStarted = true;
             Path path;
             if (atPrimarySpot) {
                 path = parkRight ? primaryToRight : primaryToLeft;
@@ -147,11 +153,46 @@ public class PathSelector {
     // just give the right and left park paths from there.
     // Also turns the intake off and raises both the intake and the flower intake.
     public Command park(Path toRight, Path toLeft, boolean parkRight) {
-        return parallel(
-                follow(follower, parkRight ? toRight : toLeft),
-                intake.intakeOff(),
-                intake.flowerAndIntakeUp()
-        );
+        return lazy(() -> {
+            parkStarted = true;
+            return parallel(
+                    follow(follower, parkRight ? toRight : toLeft),
+                    intake.intakeOff(),
+                    intake.flowerAndIntakeUp()
+            );
+        });
+    }
+
+    // Out of time: drive straight from wherever the robot is to the closer shooting spot,
+    // then park from there. Intake goes off and both intakes come up right away so nothing
+    // is hanging down while it drives.
+    public Command timeoutPark(Pose primary, Pose secondary,
+                               Path primaryToRight, Path primaryToLeft,
+                               Path secondaryToRight, Path secondaryToLeft,
+                               boolean parkRight) {
+        return lazy(() -> {
+            Pose here = follower.pose();
+            double toPrimary = Math.hypot(here.x() - primary.x(), here.y() - primary.y());
+            double toSecondary = Math.hypot(here.x() - secondary.x(), here.y() - secondary.y());
+
+            boolean primaryCloser = toPrimary <= toSecondary;
+            Pose spot = primaryCloser ? primary : secondary;
+            atPrimarySpot = primaryCloser; // so park() picks the paths that start at this spot
+
+            // Already basically at the spot: skip the zero-length drive
+            Command toSpot = Math.min(toPrimary, toSecondary) < 1
+                    ? waitMs(0)
+                    : follow(follower, Paths.line(here, spot).constant(spot));
+
+            return sequential(
+                    parallel(
+                            toSpot,
+                            intake.intakeOff(),
+                            intake.flowerAndIntakeUp()
+                    ),
+                    park(primaryToRight, primaryToLeft, secondaryToRight, secondaryToLeft, parkRight)
+            );
+        });
     }
 
     // Wait until the camera sees our alliance's tags (hive tipped so we can shoot),
@@ -162,6 +203,11 @@ public class PathSelector {
                 waitMs(AutoConstants.TIP_DELAY),
                 autoRobot.shoot()
         );
+    }
+
+    // True once a park() has started (used to skip the timeout park)
+    public boolean hasStartedPark() {
+        return parkStarted;
     }
 
     // For telemetry

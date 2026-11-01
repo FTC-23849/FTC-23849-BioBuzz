@@ -13,4 +13,8 @@ public class AutoConstants {
     public static final double TIP_DETECTION_WAIT_TIME = 300;
     public static final double TIP_DELAY = 1000;
 
+    // Auto period length and when to give up on the routine and park (seconds, not ms)
+    public static final double AUTO_DURATION_SECONDS = 30;
+    public static final double PARK_TIME_LEFT_SECONDS = 5;
+
 }
