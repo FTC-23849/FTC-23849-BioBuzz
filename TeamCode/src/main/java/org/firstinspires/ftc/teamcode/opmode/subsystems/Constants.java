@@ -26,11 +26,12 @@ public class Constants {
     public static double blockBall = 0.510;
     public static double releaseBall = 0.380;
 
-    public static double kP = 0.006;
+    public static double kP = 0.0027;
     public static double kI = 0.0;
-    public static double kD = 0.00004;
-    public static double kS = 0.1;
-    public static double kV = 0.00035;
+    public static double kD = 0.0;
+    public static double kS = 0.15;
+    public static double kV = 0.00030;
+
     public static double nominalVoltage = 13.2;
     public static double maxIntegralPower = 0.2;
     public static double bottomEncoderScale = 28.0 * 30.0 / 20.0 / 8192.0;
