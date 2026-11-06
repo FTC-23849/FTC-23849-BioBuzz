@@ -17,6 +17,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.opmode.Auto.AutoConstants;
 import org.firstinspires.ftc.teamcode.opmode.Auto.AutoRobot;
@@ -41,6 +42,11 @@ public class RightAuto extends OpMode {
 
     // Alliance whose AprilTags tip detection looks for. Pick it during init with gamepad1 or gamepad2 (X = blue, B = red).
     private String tipAlliance = "red";
+
+    // Timeout park: when PARK_TIME_LEFT_SECONDS are left, drop the routine and park
+    private final ElapsedTime autoTimer = new ElapsedTime();
+    private Command routine;
+    private boolean parking = false;
 
     // Pedro
     private Follower follower;
@@ -97,7 +103,7 @@ public class RightAuto extends OpMode {
     }
 
     public Path primaryToSecondary() {
-        return Paths.curve(primary, primaryToSecondaryReverseControl1, secondary).constant(poseFactory.of(0, 0, 250));
+        return Paths.curve(primary, primaryToSecondaryReverseControl1, secondary).constant(poseFactory.of(0, 0, 290));
     }
 
     public Path secondaryToPrimary() {
@@ -236,7 +242,9 @@ public class RightAuto extends OpMode {
         // Built here (not in init) so it gets the alliance picked during init_loop
         pathSelector = new PathSelector(follower, shooter, intake, robot, autoRobot, tipAlliance);
 
-        schedule(autoRoutine());
+        routine = autoRoutine();
+        schedule(routine);
+        autoTimer.reset();
 
     }
 
@@ -244,6 +252,18 @@ public class RightAuto extends OpMode {
     public void loop() {
 
         follower.update();
+
+        // Running out of time, the routine hasn't finished, and it isn't already parking: drop it and park
+        if (!parking && Scheduler.isScheduled(routine) && !pathSelector.hasStartedPark()
+                && autoTimer.seconds() >= AutoConstants.AUTO_DURATION_SECONDS - AutoConstants.PARK_TIME_LEFT_SECONDS) {
+            parking = true;
+            Scheduler.reset(); // clears the routine (the new park path overrides the current one)
+            schedule(pathSelector.timeoutPark(primary, secondary,
+                    primaryToRightPark(), primaryToLeftPark(),
+                    secondaryToRightPark(), secondaryToLeftPark(),
+                    parkRight));
+        }
+
         Scheduler.execute();
 
         shooter.updateFlywheel(follower.pose().x(), follower.pose().y());

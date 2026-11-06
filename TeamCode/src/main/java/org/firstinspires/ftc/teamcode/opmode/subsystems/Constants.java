@@ -11,7 +11,7 @@ public class Constants {
 
     // Intake
     public static double transferSpeed = 1.0;
-    public static double transferSpeedAuto = 0.7;
+    public static double transferSpeedAuto = 1.0;
     public static double
             intakePower = 1.000;
     public static double reverseIntakePower = -1.000;
