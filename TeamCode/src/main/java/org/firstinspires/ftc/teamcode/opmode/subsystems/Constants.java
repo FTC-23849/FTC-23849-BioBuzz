@@ -33,6 +33,7 @@ public class Constants {
     public static double kV = 0.00035;
     public static double nominalVoltage = 13.2;
     public static double maxIntegralPower = 0.2;
+    public static double bottomEncoderScale = 28.0 * 30.0 / 20.0 / 8192.0;
 
     public static double hoodUp = 0.25;
     public static double hoodDown = 0.43;

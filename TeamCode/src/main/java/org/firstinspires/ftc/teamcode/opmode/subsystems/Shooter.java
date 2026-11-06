@@ -49,6 +49,26 @@ public class Shooter {
     VoltageSensor voltageSensor;
     ElapsedTime voltageTimer = new ElapsedTime();
     double batteryVoltage = nominalVoltage;
+    public double topVelocity = 0;
+    public double bottomVelocity = 0;
+    int lastBottomPos = 0;
+    ElapsedTime bottomTimer = new ElapsedTime();
+
+    void updateBottomVelocity(){
+        int pos = bottomShooter.getCurrentPosition();
+        double dt = bottomTimer.seconds();
+        bottomTimer.reset();
+        double estimate = dt > 0 ? (pos - lastBottomPos) / dt : 0;
+        lastBottomPos = pos;
+        bottomVelocity = inverseOverflow(bottomShooter.getVelocity(), estimate) * bottomEncoderScale;
+    }
+
+    static double inverseOverflow(double input, double estimate){
+        int real = (int) input & 0xffff;
+        real += ((real % 20) / 4) * 0x10000;
+        real += Math.round((estimate - real) / (5 * 0x10000)) * 5 * 0x10000;
+        return real;
+    }
 
     void updateBatteryVoltage(){
         if(voltageTimer.milliseconds() > 250){
@@ -180,6 +200,8 @@ public class Shooter {
             batteryVoltage = nominalVoltage;
         }
         voltageTimer.reset();
+        lastBottomPos = bottomShooter.getCurrentPosition();
+        bottomTimer.reset();
         topShooter.setDirection(DcMotorSimple.Direction.REVERSE);
         hood.setPosition(hoodUp);
     }
@@ -207,7 +229,9 @@ public class Shooter {
 
         //target and distance are always calculated so they show in telemetry
         targetDist = calculateTargetDist(robot.dt.getRobotPos());
-        currVelocity = -topShooter.getVelocity();
+        topVelocity = -topShooter.getVelocity();
+        updateBottomVelocity();
+        currVelocity = bottomVelocity;
 
         boolean tableOk = shotTableError == null;
         if(robot.testingShooter){
@@ -250,7 +274,9 @@ public class Shooter {
 
         //target and distance are always calculated so they show in telemetry
         targetDist = calculateTargetDist(robotX, robotY);
-        currVelocity = -topShooter.getVelocity();
+        topVelocity = -topShooter.getVelocity();
+        updateBottomVelocity();
+        currVelocity = bottomVelocity;
 
         boolean tableOk = shotTableError == null;
         if(robot.testingShooter){

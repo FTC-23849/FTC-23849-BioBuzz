@@ -119,9 +119,12 @@ public class Robot {
         telemetry.addData("Shooter target x", shooter.targetX);
         telemetry.addData("Shooter target y", shooter.targetY);
         telemetry.addData("Shooter distance from target", shooter.targetDist);
-        telemetry.addData("Flywheel current velocity", shooter.currVelocity);
+        telemetry.addData("Top flywheel velocity", shooter.topVelocity);
+        telemetry.addData("Bottom flywheel velocity", shooter.bottomVelocity);
+        telemetry.addData("Flywheel power", shooter.topShooter.getPower());
         telemetry.addData("Flywheel target velocity", shooter.targetVelocity);
-        telemetry.addData("Flywheel error (curr - target)", shooter.velocityError);        telemetry.addData("Turret angle (deg)", turret.turretAngle);
+        telemetry.addData("Flywheel error (curr - target)", shooter.velocityError);
+        telemetry.addData("Turret angle (deg)", turret.turretAngle);
         telemetry.addData("Launch angle (deg)", shooter.launchAngle);
         telemetry.addData("Hood angle (deg)", shooter.hoodAngle);
         telemetry.addData("Shot table error", shooter.shotTableError);
