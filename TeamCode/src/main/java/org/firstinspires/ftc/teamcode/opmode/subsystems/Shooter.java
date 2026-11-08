@@ -27,10 +27,10 @@ public class Shooter {
     Robot robot;
     public static int numOfPointsRegression = 8;
     public static String[] shotPoints = {
-            "25,1040", "40,1120", "50,1200", "60,1300", "70,1350", "80,1390", "93,1440", "100,1480",
-            "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
+            "20,1060", "30,1060", "40,1135", "50,1185", "60,1275", "70,1300", "80,1340", "93,1440",
+            "100,1480", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
     };
-    public static int maxShotCurveDegree = 3;
+    public static int maxShotCurveDegree = 4;
     String[] parsedPoints = null;
     int parsedDegree = -1;
     PolynomialFunction shotCurve = null;
