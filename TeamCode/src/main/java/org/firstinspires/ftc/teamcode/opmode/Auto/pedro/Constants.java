@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmode.auto.pedro;
+package org.firstinspires.ftc.teamcode.opmode.Auto.pedro;
 
 import com.pedropathing.algorithm.Foresight;
 import com.pedropathing.algorithm.ForesightConfig;
