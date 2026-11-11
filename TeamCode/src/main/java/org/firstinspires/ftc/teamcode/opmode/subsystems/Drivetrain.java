@@ -40,9 +40,9 @@ public class Drivetrain {
 
     public void relocalize(String alliance, boolean leftCorner) {
         if (alliance.equals("blue")) {
-            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 63.34, leftCorner ? -66.16 : 66.16, AngleUnit.DEGREES, 180));
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 63.34, leftCorner ? -66.16 : 65.16, AngleUnit.DEGREES, 180));
         } else {
-            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -63.34, leftCorner ? 66.16 : -66.16, AngleUnit.DEGREES, 0));
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -63.34, leftCorner ? 66.16 : -65.16, AngleUnit.DEGREES, 0));
         }
     }
 
