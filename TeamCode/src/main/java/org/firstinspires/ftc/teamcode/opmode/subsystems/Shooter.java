@@ -25,10 +25,10 @@ public class Shooter {
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static int numOfPointsRegression = 8;
+    public static int numOfPointsRegression = 9;
     public static String[] shotPoints = {
-            "20,1060", "25,1065", "30,1050", "40,1135", "50,1205", "60,1285", "70,1300", "80,1340",
-            "93,1440", "100,1480", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
+            "20,1065", "0,0", "30,1045", "40,1110.67", "50,1140", "60,1260", "70,1250", "80,1290",
+            "93,1370", "100,1455", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
     };
     public static int maxShotCurveDegree = 4;
     String[] parsedPoints = null;
