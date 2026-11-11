@@ -21,7 +21,7 @@ public class Drivetrain {
     double lastVelX = 0, lastVelY = 0;
     double accelX = 0, accelY = 0;
 
-    public Drivetrain(HardwareMap hwmap){
+    public Drivetrain(HardwareMap hwmap) {
         this.hwmap = hwmap;
     }
 
@@ -38,20 +38,21 @@ public class Drivetrain {
         RB.setPower((y + x - rx) / denominator);
     }
 
-    public void relocalize(String alliance, boolean leftCorner){
-        if(alliance.equals("blue")) {
+    public void relocalize(String alliance, boolean leftCorner) {
+        if (alliance.equals("blue")) {
             pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 63.34, leftCorner ? -66.16 : 66.16, AngleUnit.DEGREES, 180));
         } else {
             pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, -63.34, leftCorner ? 66.16 : -66.16, AngleUnit.DEGREES, 0));
         }
     }
-    public void recalibrate(){
+
+    public void recalibrate() {
         pinpoint.recalibrateIMU();
     }
 
-    public Pose2D getRobotPos(){
+    public Pose2D getRobotPos() {
         Pose2D pos = pinpoint.getPosition();
-        if(sotm){
+        if (sotm) {
             double velocityX = pinpoint.getVelX(DistanceUnit.INCH);
             double velocityY = pinpoint.getVelY(DistanceUnit.INCH);
             double L = sotmLatency;
@@ -66,20 +67,21 @@ public class Drivetrain {
                     releaseX + releaseVelX * tof,
                     releaseY + releaseVelY * tof,
                     AngleUnit.DEGREES, pos.getHeading(AngleUnit.DEGREES));
-        }else {
+        } else {
             return pos;
         }
     }
-    public double getRobotAngle(){
+
+    public double getRobotAngle() {
         double signedAngle = pinpoint.getHeading(AngleUnit.DEGREES);
         double unsignedAngle = signedAngle;
         if (unsignedAngle < 0) {
-            unsignedAngle+=360;
+            unsignedAngle += 360;
         }
-        return  unsignedAngle;
+        return unsignedAngle;
     }
 
-    public void init(){
+    public void init() {
         LF = hwmap.get(DcMotorEx.class, "LF");
         RF = hwmap.get(DcMotorEx.class, "RF");
         LB = hwmap.get(DcMotorEx.class, "LB");
@@ -98,19 +100,19 @@ public class Drivetrain {
         pinpoint.recalibrateIMU();
     }
 
-    public void initLoop(){
+    public void initLoop() {
 
     }
 
-    public void start(){
+    public void start() {
 
     }
 
-    public void stop(){
+    public void stop() {
 
     }
 
-    public void update(boolean sotm){
+    public void update(boolean sotm) {
         this.sotm = sotm;
         pinpoint.update();
 
@@ -126,3 +128,5 @@ public class Drivetrain {
         lastVelY = velY;
     }
 }
+
+

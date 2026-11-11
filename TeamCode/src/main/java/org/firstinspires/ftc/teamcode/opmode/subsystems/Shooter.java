@@ -27,8 +27,8 @@ public class Shooter {
     Robot robot;
     public static int numOfPointsRegression = 8;
     public static String[] shotPoints = {
-            "20,1060", "30,1060", "40,1135", "50,1185", "60,1275", "70,1300", "80,1340", "93,1440",
-            "100,1480", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
+            "20,1060", "25,1065", "30,1050", "40,1135", "50,1205", "60,1285", "70,1300", "80,1340",
+            "93,1440", "100,1480", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
     };
     public static int maxShotCurveDegree = 4;
     String[] parsedPoints = null;
