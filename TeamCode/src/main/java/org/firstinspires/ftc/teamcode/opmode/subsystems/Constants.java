@@ -36,8 +36,8 @@ public class Constants {
     public static double maxIntegralPower = 0.2;
     public static double bottomEncoderScale = 28.0 * 30.0 / 20.0 / 8192.0;
 
-    public static double hoodUp = 0.31;
-    public static double hoodDown = 0.49;
+    public static double hoodUp = 0.36;
+    public static double hoodDown = 0.54;
     public static double hoodMinAngle = 10;
     public static double hoodMaxAngle = 35;
 

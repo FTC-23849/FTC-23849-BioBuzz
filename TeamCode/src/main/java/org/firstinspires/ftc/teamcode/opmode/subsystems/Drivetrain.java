@@ -21,6 +21,7 @@ public class Drivetrain {
     double lastVelX = 0, lastVelY = 0;
     double accelX = 0, accelY = 0;
 
+
     public Drivetrain(HardwareMap hwmap) {
         this.hwmap = hwmap;
     }
@@ -128,5 +129,4 @@ public class Drivetrain {
         lastVelY = velY;
     }
 }
-
 
