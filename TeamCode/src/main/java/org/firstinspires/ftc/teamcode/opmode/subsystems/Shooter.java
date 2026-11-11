@@ -203,7 +203,6 @@ public class Shooter {
         lastBottomPos = bottomShooter.getCurrentPosition();
         bottomTimer.reset();
         topShooter.setDirection(DcMotorSimple.Direction.REVERSE);
-        hood.setPosition(hoodUp);
     }
 
     public void initLoop(){
@@ -211,7 +210,7 @@ public class Shooter {
     }
 
     public void start(){
-
+        hood.setPosition(hoodUp);
     }
 
     public void stop(){

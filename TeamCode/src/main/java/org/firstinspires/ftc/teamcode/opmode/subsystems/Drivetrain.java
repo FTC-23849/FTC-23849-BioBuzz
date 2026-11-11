@@ -95,6 +95,7 @@ public class Drivetrain {
         pinpoint.setOffsets(35.7436, 3.4320, DistanceUnit.MM);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         pinpoint.setEncoderResolution(19.89436789, DistanceUnit.MM);
+        pinpoint.recalibrateIMU();
     }
 
     public void initLoop(){
