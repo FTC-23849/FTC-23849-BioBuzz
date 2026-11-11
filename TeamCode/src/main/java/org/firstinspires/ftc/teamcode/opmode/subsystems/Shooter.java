@@ -28,7 +28,7 @@ public class Shooter {
     public static int numOfPointsRegression = 9;
     public static String[] shotPoints = {
             "20,1065", "0,0", "30,1045", "40,1110.67", "50,1140", "60,1260", "70,1250", "80,1290",
-            "93,1370", "100,1455", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
+            "93,1370", "100,1455", "0,0", "0,0", "0,0", "0,0", "0,0","0,0"
     };
     public static int maxShotCurveDegree = 4;
     String[] parsedPoints = null;
