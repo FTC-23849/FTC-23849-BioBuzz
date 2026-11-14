@@ -153,8 +153,8 @@ public class Turret {
             leftTurret.setPosition(turretPos);
             rightTurret.setPosition(turretPos + turretServoDifference);
         }else if(aimTurret){
-            robotPos = robot.dt.getRobotPos();
-            robotAngleUnsigned = robot.dt.getRobotAngle();
+            robotPos = robot.dt.getRobotPos(turretLag);
+            robotAngleUnsigned = robot.dt.getRobotAngle(turretLag);
             turretPos = calculateTurretServoPosition(robotPos, robotAngleUnsigned);
             leftTurret.setPosition(turretPos);
             rightTurret.setPosition(turretPos + turretServoDifference);

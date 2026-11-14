@@ -25,10 +25,9 @@ public class Shooter {
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static int numOfPointsRegression = 9;
     public static String[] shotPoints = {
-            "20,1065", "0,0", "30,1045", "40,1110.67", "50,1140", "60,1260", "70,1250", "80,1290",
-            "93,1370", "100,1455", "0,0", "0,0", "0,0", "0,0", "0,0","0,0"
+            "20,1020", "30,1085", "40,1145", "50,1170", "60,1210", "70,1280", "80,1300",
+            "93,1360", "100,1420", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0","0,0"
     };
     public static int maxShotCurveDegree = 4;
     String[] parsedPoints = null;
@@ -43,6 +42,7 @@ public class Shooter {
     double targetX = 0;
     double targetY = 0;
     double targetDist = 0;
+    double hoodDist = 0;
     double currVelocity = 0;
     double targetVelocity = 0;
     double velocityError = 0;
@@ -85,35 +85,31 @@ public class Shooter {
     }
 
     void refreshShotTable(){
-        int count = Math.max(0, Math.min(numOfPointsRegression, shotPoints.length));
-        String[] used = Arrays.copyOf(shotPoints, count);
-        if(Arrays.equals(used, parsedPoints) && maxShotCurveDegree == parsedDegree){
+        if(Arrays.equals(shotPoints, parsedPoints) && maxShotCurveDegree == parsedDegree){
             return;
         }
-        parsedPoints = used;
+        parsedPoints = shotPoints.clone();
         parsedDegree = maxShotCurveDegree;
         try{
-            double[] dists = new double[count];
-            double[] vels = new double[count];
-            for (int i = 0; i < count; i++) {
-                String[] parts = used[i].split(",");
+            WeightedObservedPoints points = new WeightedObservedPoints();
+            int count = 0;
+            for (int i = 0; i < parsedPoints.length; i++) {
+                String[] parts = parsedPoints[i].split(",");
                 if(parts.length != 2){
-                    throw new IllegalArgumentException("point " + i + " should be distance,velocity but is \"" + used[i] + "\"");
+                    throw new IllegalArgumentException("point " + i + " should be distance,velocity but is \"" + parsedPoints[i] + "\"");
                 }
-                dists[i] = Double.parseDouble(parts[0].trim());
-                vels[i] = Double.parseDouble(parts[1].trim());
-            }
-            if(numOfPointsRegression > count){
-                throw new IllegalArgumentException("numOfPointsRegression is " + numOfPointsRegression + " but list only holds " + count);
+                double dist = Double.parseDouble(parts[0].trim());
+                double vel = Double.parseDouble(parts[1].trim());
+                if(dist == 0 || vel == 0){
+                    continue;
+                }
+                points.add(dist, vel);
+                count++;
             }
             if(count < 2){
-                throw new IllegalArgumentException("need at least 2 points");
+                throw new IllegalArgumentException("need at least 2 non-zero points");
             }
-            WeightedObservedPoints points = new WeightedObservedPoints();
-            for (int i = 0; i < dists.length; i++) {
-                points.add(dists[i], vels[i]);
-            }
-            int degree = Math.max(1, Math.min(maxShotCurveDegree, dists.length - 1));
+            int degree = Math.max(1, Math.min(maxShotCurveDegree, count - 1));
             shotCurve = new PolynomialFunction(PolynomialCurveFitter.create(degree).fit(points.toList()));
             shotTableError = null;
         }catch(Exception e){
@@ -227,7 +223,8 @@ public class Shooter {
         updateBatteryVoltage();
 
         //target and distance are always calculated so they show in telemetry
-        targetDist = calculateTargetDist(robot.dt.getRobotPos());
+        hoodDist = calculateTargetDist(robot.dt.getRobotPos(hoodLag));
+        targetDist = calculateTargetDist(robot.dt.getRobotPos(shooterLag));
         topVelocity = -topShooter.getVelocity();
         updateBottomVelocity();
         currVelocity = bottomVelocity;
@@ -236,7 +233,7 @@ public class Shooter {
         if(robot.testingShooter){
             hood.setPosition(robot.hoodPositionTesting);
         }else if(aim){
-            hood.setPosition(calculateHoodPosition(targetDist));
+            hood.setPosition(calculateHoodPosition(hoodDist));
         }else{
             hood.setPosition(hoodUp);
         }

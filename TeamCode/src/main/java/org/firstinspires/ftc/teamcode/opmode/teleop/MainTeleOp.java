@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.powerAdjustmentStep;
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.turretAdjustmentStep;
@@ -27,13 +28,17 @@ public class MainTeleOp extends OpMode {
     public static double turretAdjustment = 0;
     public static double powerAdjustment = 0;
     boolean aim = false;
-    boolean sotm = false;
+    boolean sotm = true;
     String alliance = "red";
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot = new Robot(hardwareMap, telemetry);
         robot.init();
+        robot.dt.LF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.dt.RF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.dt.LB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.dt.RB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
@@ -102,7 +107,12 @@ public class MainTeleOp extends OpMode {
             }
         }
         telemetry.update();
-        robot.dt.driveRobot(gamepad1);
+        robot.dt.lockedPos(gamepad1.left_stick_button);
+        if (robot.dt.lockedModeEnabled) {
+            robot.dt.runLockedPos();
+        } else {
+            robot.dt.driveRobot(gamepad1);
+        }
 
         if(gamepad1.backWasReleased()){
             //toggle aiming (turret + shooter)
@@ -140,12 +150,8 @@ public class MainTeleOp extends OpMode {
         }
 
 
-        if(gamepad1.y){
-            //TODO: sotm
-            //technically sotm but justin can keep dreaming
-            sotm = true;
-        }else{
-            sotm = false;
+        if(gamepad1.yWasPressed()){
+            sotm = !sotm;
         }
         if(gamepad1.x){
             alliance = "blue";
@@ -164,8 +170,6 @@ public class MainTeleOp extends OpMode {
             //recalibration
             robot.dt.recalibrate();
         }
-        //TODO: additional buttons like locked button / button remapping
-        //tbd controls, button for locked pos?
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -20,21 +21,18 @@ public class Intake {
     public void transferBalls(){
         running = true;
         outtaking = false;
-        leftIntake.setPower(transferSpeed);
-        rightIntake.setPower(transferSpeed);
+        setIntakePower(transferSpeed);
     }
     public void reverseIntake(){
         running = true;
         outtaking = true;
-        leftIntake.setPower(reverseIntakePower);
-        rightIntake.setPower(reverseIntakePower);
+        setIntakePower(reverseIntakePower);
     }
 
     public void stopIntake(){
         running = false;
         outtaking = false;
-        leftIntake.setPower(0.0);
-        rightIntake.setPower(0.0);
+        setIntakePower(0.0);
     }
 
     public enum IntakeState {
@@ -57,8 +55,7 @@ public class Intake {
         }
         running = true;
         outtaking = false;
-        leftIntake.setPower(intakePower);
-        rightIntake.setPower(intakePower);
+        setIntakePower(intakePower);
     }
 
     public void flowerIntakeDown(){
@@ -79,6 +76,13 @@ public class Intake {
         dropdownIntake = hwmap.get(ServoImplEx.class, "dropdownIntake");
         flowerIntake = hwmap.get(ServoImplEx.class, "flowerIntake");
         leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    void setIntakePower(double power){
+        leftIntake.setPower(power);
+        rightIntake.setPower(power);
     }
 
     public void initLoop(){

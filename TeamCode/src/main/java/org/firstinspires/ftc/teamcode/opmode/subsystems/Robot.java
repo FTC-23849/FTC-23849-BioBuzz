@@ -29,6 +29,7 @@ public class Robot {
         this.hwmap = hwmap;
         this.telemetry = telemetry;
         dt = new Drivetrain(hwmap);
+        dt.robot = this;
         intake = new Intake(hwmap);
         misc = new Misc(hwmap, this);
         shooter = new Shooter(hwmap, this);
@@ -39,6 +40,7 @@ public class Robot {
     public Robot(HardwareMap hwmap){
         this.hwmap = hwmap;
         dt = new Drivetrain(hwmap);
+        dt.robot = this;
         intake = new Intake(hwmap);
         misc = new Misc(hwmap, this);
         shooter = new Shooter(hwmap, this);
@@ -111,6 +113,11 @@ public class Robot {
         telemetry.addData("Turret Adjustment", turretAdjustment);
         telemetry.addData("Alliance", alliance);
         telemetry.addData("Aim", aim);
+        telemetry.addData("SOTM", dt.sotm);
+        telemetry.addData("SOTM ToF (s)", dt.tof);
+        telemetry.addData("SOTM vel x", dt.filtVelX);
+        telemetry.addData("SOTM vel y", dt.filtVelY);
+        telemetry.addData("SOTM omega (rad/s)", dt.filtOmega);
         telemetry.addData("Robot x", dt.getRobotPos().getX(DistanceUnit.INCH));
         telemetry.addData("Robot y", dt.getRobotPos().getY(DistanceUnit.INCH));
         telemetry.addData("Robot heading (deg)", dt.getRobotAngle());
