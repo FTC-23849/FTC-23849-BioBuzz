@@ -28,7 +28,7 @@ public class MainTeleOp extends OpMode {
     public static double turretAdjustment = 0;
     public static double powerAdjustment = 0;
     boolean aim = false;
-    boolean sotm = true;
+    boolean sotm = false;
     String alliance = "red";
     @Override
     public void init() {
@@ -88,7 +88,7 @@ public class MainTeleOp extends OpMode {
         robot.turretPositionTesting = turretPositionTesting;
         robot.flywheelSpeedTesting = flywheelSpeedTesting;
         robot.misc.showCurrentDraw = showCurrentDraw;
-        robot.update(aim, sotm, alliance);
+        robot.update(aim, sotm || gamepad1.left_stick_button, alliance);
         robot.addTelemetry();
         telemetry.addData("cfg flywheelSpeedTesting", flywheelSpeedTesting);
         if(showServoStates){

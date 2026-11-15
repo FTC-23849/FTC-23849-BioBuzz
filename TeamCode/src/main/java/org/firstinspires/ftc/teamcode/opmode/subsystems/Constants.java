@@ -6,8 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 public class Constants {
     // Drivetrain
     public static double turretLag = 0.1;
-    public static double hoodLag = 0.3;
-    public static double shooterLag = 0.1;
+    public static double hoodLag = 0.2;
+    public static double shooterLag = 0.2;
     public static double sotmTimeOfFlight = 0.5;
     public static String[] sotmTofPoints = {"20,0.38", "35,0.69", "50,0.675", "60,0.80", "75,0.76", "89,0.79"};
     public static String[] sotmTofPointsBackup = {"20,0.36", "35,0.59", "50,0.675", "60,0.74", "75,0.76", "89,0.78"};

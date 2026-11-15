@@ -111,7 +111,7 @@ public class Misc {
             for (String name : MOTOR_NAMES) {
                 header.append(',').append(name).append("_amps");
             }
-            header.append(",distance_from_goal,flywheel_target_velocity");
+            header.append(",distance_from_goal,flywheel_target_velocity,loop_ms");
             writer.write(header.toString());
             writer.newLine();
             writer.flush();
@@ -131,6 +131,7 @@ public class Misc {
         }
         line.append(',').append(String.format(Locale.US, "%.2f", robot.shooter.targetDist));
         line.append(',').append(String.format(Locale.US, "%.1f", robot.shooter.targetVelocity));
+        line.append(',').append(String.format(Locale.US, "%.1f", robot.loopTime));
         try{
             writer.write(line.toString());
             writer.newLine();

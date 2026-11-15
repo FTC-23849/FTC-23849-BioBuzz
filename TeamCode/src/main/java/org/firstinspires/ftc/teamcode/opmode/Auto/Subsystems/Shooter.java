@@ -25,7 +25,7 @@ public class Shooter {
         misc.init();
         misc.start();
         turret.leftTurret.setPosition(turretBackCenterPos);
-        turret.rightTurret.setPosition(turretBackCenterPos);
+        turret.rightTurret.setPosition(turretBackCenterPos + turretServoDifference);
 
     }
 
