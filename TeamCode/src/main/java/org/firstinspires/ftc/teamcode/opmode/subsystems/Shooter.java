@@ -235,7 +235,7 @@ public class Shooter {
         }else if(aim){
             hood.setPosition(calculateHoodPosition(hoodDist));
         }else{
-            hood.setPosition(hoodUp);
+            hood.setPosition((hoodUp + hoodDown)/2);
         }
 
         if(aim && (robot.testingShooter || tableOk)){

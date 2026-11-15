@@ -117,7 +117,7 @@ public class Robot {
         telemetry.addData("SOTM ToF (s)", dt.tof);
         telemetry.addData("SOTM vel x", dt.filtVelX);
         telemetry.addData("SOTM vel y", dt.filtVelY);
-        telemetry.addData("SOTM omega (rad/s)", dt.filtOmega);
+        telemetry.addData("SOTM omega (deg/s)", dt.filtOmega);
         telemetry.addData("Robot x", dt.getRobotPos().getX(DistanceUnit.INCH));
         telemetry.addData("Robot y", dt.getRobotPos().getY(DistanceUnit.INCH));
         telemetry.addData("Robot heading (deg)", dt.getRobotAngle());

@@ -115,7 +115,7 @@ public class Turret {
             servoPosition -= 360 / turretRangeDeg;
         }
 
-        return Math.max(0.161, Math.min(servoPosition,0.894));
+        return Math.max(rightLimit, Math.min(servoPosition,leftLimit));
     }
 
     public double calculateTurretServoPosition(Pose2D pos, double robotAngleUnsigned){

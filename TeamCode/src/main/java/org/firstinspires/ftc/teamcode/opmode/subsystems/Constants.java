@@ -17,16 +17,17 @@ public class Constants {
     public static double sotmVelFilter = 0.3;
     public static double sotmVelScale = 0.8;
     public static double sotmOmegaFilter = 0.3;
-    public static double sotmOmegaDeadband = 0.1;
+    public static double sotmOmegaDeadband = 5.73;
     public static double turretPivotForward = 27.18634 / 25.4;
-    public static double turretPivotLeft = 0;
     public static double sotmVelDeadband = 3;
-    public static double kP_Lock = 0.16;
-    public static double kP_Lock_Small = 0.07;
+    public static double kP_Lock = 0.21;
+    public static double kP_Lock_Small = 0.12;
     public static double kD_Lock = 0.0007;
-    public static double PIDDeadband = 8;
-    public static double kPRot_Lock = 0.08;
-    public static double kDRot_Lock = 0.00028;
+    public static double PIDDeadband = 3;
+    public static double kPRot_Lock = 0.15;
+    public static double kDRot_Lock = 0.0002;
+    public static double kPRot_Lock_Small = 0.03;
+    public static double RotLockDeadband = 5;
 
     // Intake
     public static double transferSpeed = 1.0;
@@ -37,7 +38,7 @@ public class Constants {
     public static double dropDownIntakeDown = 0.65;
     public static double dropDownIntakeFlower = 0.4;
     public static double dropDownIntakeUp = 0.34;
-    public static double flowerIntakeDown = 0.5;
+    public static double flowerIntakeDown = 0.71;
     public static double flowerIntakeUp = 0.97;
     // Misc
 

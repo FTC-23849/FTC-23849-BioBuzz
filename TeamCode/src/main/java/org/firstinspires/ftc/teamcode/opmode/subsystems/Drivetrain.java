@@ -71,7 +71,7 @@ public class Drivetrain {
 
     public Pose2D getRobotPos(double L) {
         Pose2D pos = pinpoint.getPosition();
-        double heading = pos.getHeading(AngleUnit.RADIANS);
+        double heading = pos.getHeading(AngleUnit.DEGREES);
         if (sotm) {
             double velocityX = filtVelX;
             double velocityY = filtVelY;
@@ -81,13 +81,13 @@ public class Drivetrain {
             }
             double omega = getOmega();
             double releaseHeading = heading + omega * L;
-            double rx = turretPivotForward * Math.cos(releaseHeading) - turretPivotLeft * Math.sin(releaseHeading);
-            double ry = turretPivotForward * Math.sin(releaseHeading) + turretPivotLeft * Math.cos(releaseHeading);
+            double rx = turretPivotForward * Math.cos(Math.toRadians(releaseHeading));
+            double ry = turretPivotForward * Math.sin(Math.toRadians(releaseHeading));
 
             double releaseX = pos.getX(DistanceUnit.INCH) + velocityX * L + 0.5 * accelX * L * L + rx;
             double releaseY = pos.getY(DistanceUnit.INCH) + velocityY * L + 0.5 * accelY * L * L + ry;
-            double releaseVelX = (velocityX + accelX * L - omega * ry) * sotmVelScale;
-            double releaseVelY = (velocityY + accelY * L + omega * rx) * sotmVelScale;
+            double releaseVelX = (velocityX + accelX * L - Math.toRadians(omega) * ry) * sotmVelScale;
+            double releaseVelY = (velocityY + accelY * L + Math.toRadians(omega) * rx) * sotmVelScale;
 
             double predX = releaseX + releaseVelX * sotmTimeOfFlight;
             double predY = releaseY + releaseVelY * sotmTimeOfFlight;
@@ -103,21 +103,21 @@ public class Drivetrain {
             }
 
             return new Pose2D(DistanceUnit.INCH, predX, predY,
-                    AngleUnit.RADIANS, releaseHeading);
+                    AngleUnit.DEGREES, releaseHeading);
         } else {
-            double rx = turretPivotForward * Math.cos(heading) - turretPivotLeft * Math.sin(heading);
-            double ry = turretPivotForward * Math.sin(heading) + turretPivotLeft * Math.cos(heading);
+            double rx = turretPivotForward * Math.cos(Math.toRadians(heading));
+            double ry = turretPivotForward * Math.sin(Math.toRadians(heading));
             return new Pose2D(DistanceUnit.INCH,
                     pos.getX(DistanceUnit.INCH) + rx,
                     pos.getY(DistanceUnit.INCH) + ry,
-                    AngleUnit.RADIANS, heading);
+                    AngleUnit.DEGREES, heading);
         }
     }
 
     public double getRobotAngle(double L) {
         double angle = getRobotAngle();
         if (sotm) {
-            angle += Math.toDegrees(getOmega()) * L;
+            angle += getOmega() * L;
         }
         return ((angle % 360) + 360) % 360;
     }
@@ -199,7 +199,7 @@ public class Drivetrain {
         lastVelY = velY;
         filtVelX += sotmVelFilter * (velX - filtVelX);
         filtVelY += sotmVelFilter * (velY - filtVelY);
-        double omega = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
+        double omega = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES);
         filtOmega += sotmOmegaFilter * (omega - filtOmega);
     }
 
@@ -238,7 +238,8 @@ public class Drivetrain {
         else if (headingError < -180) headingError += 360;
 
         double headingDerivative = (headingError - lastHeadingErrorLocked) / dt;
-        double rotPower = kPRot_Lock * Math.signum(headingError) * Math.sqrt(Math.abs(headingError)) + kDRot_Lock * headingDerivative;
+        double kPRot = Math.abs(headingError) < RotLockDeadband ? kPRot_Lock_Small : kPRot_Lock;
+        double rotPower = kPRot * Math.signum(headingError) * Math.sqrt(Math.abs(headingError)) + kDRot_Lock * headingDerivative;
         lastHeadingErrorLocked = headingError;
 
         double xPos = -1 * robotPos.getY(DistanceUnit.METER);
@@ -247,10 +248,10 @@ public class Drivetrain {
         double xError = (anchorX - xPos) * 100;
         double yError = (anchorY - yPos) * 100;
         double dist = Math.sqrt(xError * xError + yError * yError);
-        double relAngle = Math.atan2(yError, xError) - Math.toRadians(adjustedHeading);
+        double relAngle = Math.toDegrees(Math.atan2(yError, xError)) - adjustedHeading;
 
-        xError = dist * -Math.sin(relAngle);
-        yError = dist * Math.cos(relAngle);
+        xError = dist * -Math.sin(Math.toRadians(relAngle));
+        yError = dist * Math.cos(Math.toRadians(relAngle));
 
         double xD = (xError - lastXErrorLocked) / dt;
         double yD = (yError - lastYErrorLocked) / dt;

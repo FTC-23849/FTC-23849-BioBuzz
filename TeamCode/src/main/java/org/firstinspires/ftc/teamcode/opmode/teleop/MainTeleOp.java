@@ -127,7 +127,7 @@ public class MainTeleOp extends OpMode {
             robot.intake.runIntake(Intake.IntakeState.DOWN);
         } else if(gamepad1.right_bumper){
             //run intake without dropdown, maybe do toggle?
-            robot.intake.runIntake(Intake.IntakeState.UP);
+            robot.intake.runIntake(Intake.IntakeState.FLOWER);
         }else if(gamepad1.left_bumper){
             //run intake with dropdown intake down and flower intake down
             robot.intake.runIntake(Intake.IntakeState.FLOWER);
