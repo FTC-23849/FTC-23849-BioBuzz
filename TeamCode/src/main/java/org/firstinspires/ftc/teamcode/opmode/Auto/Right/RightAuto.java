@@ -62,7 +62,8 @@ public class RightAuto extends OpMode {
     private final Pose primaryToSecondaryReverseControl1 = poseFactory.of(64, 72, 0);
 
     private final Pose flower1 = poseFactory.of(14, 49, 180);
-    private final Pose flower2 = poseFactory.of(48, 129, 90);
+    private final Pose flower1FromSecondary = poseFactory.of(14, 51, 180);
+    private final Pose flower2 = poseFactory.of(48, 128.25, 90);
 
     private final Pose primaryToFlower1C1 = poseFactory.of(40, 23, 0);
     private final Pose primaryToFlower1C2 = poseFactory.of(32, 48, 0);
@@ -94,6 +95,10 @@ public class RightAuto extends OpMode {
     private final Pose secondaryToLeftPark = poseFactory.of(16, 120, 0);
 
 
+    public Path startToPrimary() {
+        return Paths.line(startPos, intakeLine).constant(intakeLine);
+    }
+
     public Path intakeLine() {
         return Paths.line(startPos, intakeLine).constant(intakeLine);
     }
@@ -115,7 +120,7 @@ public class RightAuto extends OpMode {
     }
 
     public Path secondaryToFlower1() {
-        return Paths.curve(secondary, secondaryToFlower1C1, secondaryToFlower1C2, flower1).tangent();
+        return Paths.curve(secondary, secondaryToFlower1C1, secondaryToFlower1C2, flower1FromSecondary).tangent();
     }
 
     public Path flower1ToPrimary() {
