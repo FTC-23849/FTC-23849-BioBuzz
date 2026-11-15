@@ -61,7 +61,7 @@ public class RightAuto extends OpMode {
     private final Pose lineToPrimaryControl1 = poseFactory.of(57, 6.8, 0);
     private final Pose primaryToSecondaryReverseControl1 = poseFactory.of(64, 72, 0);
 
-    private final Pose flower1 = poseFactory.of(14, 48, 180);
+    private final Pose flower1 = poseFactory.of(14, 49, 180);
     private final Pose flower2 = poseFactory.of(48, 129, 90);
 
     private final Pose primaryToFlower1C1 = poseFactory.of(40, 23, 0);
