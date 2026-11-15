@@ -39,6 +39,7 @@ public class Intake {
 
         dropdownIntake.setPosition(dropDownIntakeUp);
         flowerIntake.setPosition(flowerIntakeUp);
+        stopper.setPosition(blockBall);
 
     }
 

@@ -29,6 +29,7 @@ public class Robot {
         this.hwmap = hwmap;
         this.telemetry = telemetry;
         dt = new Drivetrain(hwmap);
+        dt.robot = this;
         intake = new Intake(hwmap);
         misc = new Misc(hwmap, this);
         shooter = new Shooter(hwmap, this);
@@ -39,6 +40,7 @@ public class Robot {
     public Robot(HardwareMap hwmap){
         this.hwmap = hwmap;
         dt = new Drivetrain(hwmap);
+        dt.robot = this;
         intake = new Intake(hwmap);
         misc = new Misc(hwmap, this);
         shooter = new Shooter(hwmap, this);
@@ -111,6 +113,13 @@ public class Robot {
         telemetry.addData("Turret Adjustment", turretAdjustment);
         telemetry.addData("Alliance", alliance);
         telemetry.addData("Aim", aim);
+        telemetry.addData("SOTM", dt.sotm);
+        telemetry.addData("SOTM ToF (s)", dt.tof);
+        telemetry.addData("SOTM vel x", dt.filtVelX);
+        telemetry.addData("SOTM vel y", dt.filtVelY);
+        telemetry.addData("SOTM accel x", dt.accelX);
+        telemetry.addData("SOTM accel y", dt.accelY);
+        telemetry.addData("SOTM omega (deg/s)", dt.filtOmega);
         telemetry.addData("Robot x", dt.getRobotPos().getX(DistanceUnit.INCH));
         telemetry.addData("Robot y", dt.getRobotPos().getY(DistanceUnit.INCH));
         telemetry.addData("Robot heading (deg)", dt.getRobotAngle());
@@ -119,9 +128,12 @@ public class Robot {
         telemetry.addData("Shooter target x", shooter.targetX);
         telemetry.addData("Shooter target y", shooter.targetY);
         telemetry.addData("Shooter distance from target", shooter.targetDist);
-        telemetry.addData("Flywheel current velocity", shooter.currVelocity);
+        telemetry.addData("Top flywheel velocity", shooter.topVelocity);
+        telemetry.addData("Bottom flywheel velocity", shooter.bottomVelocity);
+        telemetry.addData("Flywheel power", shooter.topShooter.getPower());
         telemetry.addData("Flywheel target velocity", shooter.targetVelocity);
-        telemetry.addData("Flywheel error (curr - target)", shooter.velocityError);        telemetry.addData("Turret angle (deg)", turret.turretAngle);
+        telemetry.addData("Flywheel error (curr - target)", shooter.velocityError);
+        telemetry.addData("Turret angle (deg)", turret.turretAngle);
         telemetry.addData("Launch angle (deg)", shooter.launchAngle);
         telemetry.addData("Hood angle (deg)", shooter.hoodAngle);
         telemetry.addData("Shot table error", shooter.shotTableError);

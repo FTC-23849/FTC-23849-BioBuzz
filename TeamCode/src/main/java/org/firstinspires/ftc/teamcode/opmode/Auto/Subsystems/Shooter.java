@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Misc;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 import org.firstinspires.ftc.teamcode.opmode.subsystems.Turret;
+import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.*;
 
 public class Shooter {
 
@@ -23,6 +24,9 @@ public class Shooter {
         turret.init();
         misc.init();
         misc.start();
+        turret.leftTurret.setPosition(turretBackCenterPos);
+        turret.rightTurret.setPosition(turretBackCenterPos);
+
     }
 
     public boolean canShoot(String alliance) {

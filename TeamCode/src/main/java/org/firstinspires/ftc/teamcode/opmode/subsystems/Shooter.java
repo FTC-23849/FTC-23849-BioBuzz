@@ -25,12 +25,11 @@ public class Shooter {
     public DcMotorEx topShooter, bottomShooter;
     public ServoImplEx hood, stopper;
     Robot robot;
-    public static int numOfPointsRegression = 8;
     public static String[] shotPoints = {
-            "25,1040", "40,1120", "50,1200", "60,1300", "70,1350", "80,1390", "93,1440", "100,1480",
-            "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0"
+            "20,1020", "30,1085", "40,1145", "50,1170", "60,1210", "70,1280", "80,1300",
+            "93,1360", "100,1420", "0,0", "0,0", "0,0", "0,0", "0,0", "0,0","0,0"
     };
-    public static int maxShotCurveDegree = 3;
+    public static int maxShotCurveDegree = 4;
     String[] parsedPoints = null;
     int parsedDegree = -1;
     PolynomialFunction shotCurve = null;
@@ -43,12 +42,33 @@ public class Shooter {
     double targetX = 0;
     double targetY = 0;
     double targetDist = 0;
+    double hoodDist = 0;
     double currVelocity = 0;
     double targetVelocity = 0;
     double velocityError = 0;
     VoltageSensor voltageSensor;
     ElapsedTime voltageTimer = new ElapsedTime();
     double batteryVoltage = nominalVoltage;
+    public double topVelocity = 0;
+    public double bottomVelocity = 0;
+    int lastBottomPos = 0;
+    ElapsedTime bottomTimer = new ElapsedTime();
+
+    void updateBottomVelocity(){
+        int pos = bottomShooter.getCurrentPosition();
+        double dt = bottomTimer.seconds();
+        bottomTimer.reset();
+        double estimate = dt > 0 ? (pos - lastBottomPos) / dt : 0;
+        lastBottomPos = pos;
+        bottomVelocity = inverseOverflow(bottomShooter.getVelocity(), estimate) * bottomEncoderScale;
+    }
+
+    static double inverseOverflow(double input, double estimate){
+        int real = (int) input & 0xffff;
+        real += ((real % 20) / 4) * 0x10000;
+        real += Math.round((estimate - real) / (5 * 0x10000)) * 5 * 0x10000;
+        return real;
+    }
 
     void updateBatteryVoltage(){
         if(voltageTimer.milliseconds() > 250){
@@ -65,35 +85,31 @@ public class Shooter {
     }
 
     void refreshShotTable(){
-        int count = Math.max(0, Math.min(numOfPointsRegression, shotPoints.length));
-        String[] used = Arrays.copyOf(shotPoints, count);
-        if(Arrays.equals(used, parsedPoints) && maxShotCurveDegree == parsedDegree){
+        if(Arrays.equals(shotPoints, parsedPoints) && maxShotCurveDegree == parsedDegree){
             return;
         }
-        parsedPoints = used;
+        parsedPoints = shotPoints.clone();
         parsedDegree = maxShotCurveDegree;
         try{
-            double[] dists = new double[count];
-            double[] vels = new double[count];
-            for (int i = 0; i < count; i++) {
-                String[] parts = used[i].split(",");
+            WeightedObservedPoints points = new WeightedObservedPoints();
+            int count = 0;
+            for (int i = 0; i < parsedPoints.length; i++) {
+                String[] parts = parsedPoints[i].split(",");
                 if(parts.length != 2){
-                    throw new IllegalArgumentException("point " + i + " should be distance,velocity but is \"" + used[i] + "\"");
+                    throw new IllegalArgumentException("point " + i + " should be distance,velocity but is \"" + parsedPoints[i] + "\"");
                 }
-                dists[i] = Double.parseDouble(parts[0].trim());
-                vels[i] = Double.parseDouble(parts[1].trim());
-            }
-            if(numOfPointsRegression > count){
-                throw new IllegalArgumentException("numOfPointsRegression is " + numOfPointsRegression + " but list only holds " + count);
+                double dist = Double.parseDouble(parts[0].trim());
+                double vel = Double.parseDouble(parts[1].trim());
+                if(dist == 0 || vel == 0){
+                    continue;
+                }
+                points.add(dist, vel);
+                count++;
             }
             if(count < 2){
-                throw new IllegalArgumentException("need at least 2 points");
+                throw new IllegalArgumentException("need at least 2 non-zero points");
             }
-            WeightedObservedPoints points = new WeightedObservedPoints();
-            for (int i = 0; i < dists.length; i++) {
-                points.add(dists[i], vels[i]);
-            }
-            int degree = Math.max(1, Math.min(maxShotCurveDegree, dists.length - 1));
+            int degree = Math.max(1, Math.min(maxShotCurveDegree, count - 1));
             shotCurve = new PolynomialFunction(PolynomialCurveFitter.create(degree).fit(points.toList()));
             shotTableError = null;
         }catch(Exception e){
@@ -180,8 +196,9 @@ public class Shooter {
             batteryVoltage = nominalVoltage;
         }
         voltageTimer.reset();
+        lastBottomPos = bottomShooter.getCurrentPosition();
+        bottomTimer.reset();
         topShooter.setDirection(DcMotorSimple.Direction.REVERSE);
-        hood.setPosition(hoodUp);
     }
 
     public void initLoop(){
@@ -189,7 +206,7 @@ public class Shooter {
     }
 
     public void start(){
-
+        hood.setPosition(hoodUp);
     }
 
     public void stop(){
@@ -206,16 +223,19 @@ public class Shooter {
         updateBatteryVoltage();
 
         //target and distance are always calculated so they show in telemetry
-        targetDist = calculateTargetDist(robot.dt.getRobotPos());
-        currVelocity = -topShooter.getVelocity();
+        hoodDist = calculateTargetDist(robot.dt.getRobotPos(hoodLag));
+        targetDist = calculateTargetDist(robot.dt.getRobotPos(shooterLag));
+        topVelocity = -topShooter.getVelocity();
+        updateBottomVelocity();
+        currVelocity = bottomVelocity;
 
         boolean tableOk = shotTableError == null;
         if(robot.testingShooter){
             hood.setPosition(robot.hoodPositionTesting);
         }else if(aim){
-            hood.setPosition(calculateHoodPosition(targetDist));
+            hood.setPosition(calculateHoodPosition(hoodDist));
         }else{
-            hood.setPosition(hoodUp);
+            hood.setPosition((hoodUp + hoodDown)/2);
         }
 
         if(aim && (robot.testingShooter || tableOk)){
@@ -250,7 +270,9 @@ public class Shooter {
 
         //target and distance are always calculated so they show in telemetry
         targetDist = calculateTargetDist(robotX, robotY);
-        currVelocity = -topShooter.getVelocity();
+        topVelocity = -topShooter.getVelocity();
+        updateBottomVelocity();
+        currVelocity = bottomVelocity;
 
         boolean tableOk = shotTableError == null;
         if(robot.testingShooter){
