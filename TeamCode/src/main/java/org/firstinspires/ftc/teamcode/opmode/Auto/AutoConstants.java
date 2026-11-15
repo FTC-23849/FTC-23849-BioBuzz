@@ -17,4 +17,7 @@ public class AutoConstants {
     public static final double AUTO_DURATION_SECONDS = 30;
     public static final double PARK_TIME_LEFT_SECONDS = 5;
 
+    // Give up on a path if it hasn't made progress for this long (ms) and move on
+    public static final double STUCK_TIMEOUT = 5000;
+
 }

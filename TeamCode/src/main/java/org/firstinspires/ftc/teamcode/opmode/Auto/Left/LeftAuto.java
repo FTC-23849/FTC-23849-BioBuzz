@@ -73,7 +73,7 @@ public class LeftAuto extends OpMode {
         return sequential(
 
                 // Preloads
-                follow(follower, toSecondary()),
+                autoRobot.followOrSkip(toSecondary()),
                 waitMs(AutoConstants.INITIAL_WAIT_TIME),
                 pathSelector.shootWhenTipped(),
 

@@ -15,7 +15,6 @@ import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 public class PathSelector {
 
@@ -75,7 +74,7 @@ public class PathSelector {
                     }
                     Path switchPath = atPrimarySpot ? primaryToSecondary : secondaryToPrimary;
                     atPrimarySpot = !atPrimarySpot;
-                    return follow(follower, switchPath);
+                    return autoRobot.followOrSkip(switchPath);
                 }),
                 autoRobot.shoot()
         );
@@ -97,7 +96,7 @@ public class PathSelector {
                         return waitMs(0);
                     }
                     atPrimarySpot = !atPrimarySpot;
-                    return follow(follower, switchPath);
+                    return autoRobot.followOrSkip(switchPath);
                 }),
                 autoRobot.shoot()
         );
@@ -105,7 +104,7 @@ public class PathSelector {
 
     // Drive to the next pickup from whichever spot we actually shot at
     public Command toPickup(Path fromPrimary, Path fromSecondary) {
-        return lazy(() -> follow(follower, atPrimarySpot ? fromPrimary : fromSecondary));
+        return lazy(() -> autoRobot.followOrSkip(atPrimarySpot ? fromPrimary : fromSecondary));
     }
 
     // Drive to the next pickup and get the mechanism ready on the way:
@@ -142,7 +141,7 @@ public class PathSelector {
                 path = parkRight ? secondaryToRight : secondaryToLeft;
             }
             return parallel(
-                    follow(follower, path),
+                    autoRobot.followOrSkip(path),
                     intake.intakeOff(),
                     intake.flowerAndIntakeUp()
             );
@@ -156,7 +155,7 @@ public class PathSelector {
         return lazy(() -> {
             parkStarted = true;
             return parallel(
-                    follow(follower, parkRight ? toRight : toLeft),
+                    autoRobot.followOrSkip(parkRight ? toRight : toLeft),
                     intake.intakeOff(),
                     intake.flowerAndIntakeUp()
             );
@@ -182,7 +181,7 @@ public class PathSelector {
             // Already basically at the spot: skip the zero-length drive
             Command toSpot = Math.min(toPrimary, toSecondary) < 1
                     ? waitMs(0)
-                    : follow(follower, Paths.line(here, spot).constant(spot));
+                    : autoRobot.followOrSkip(Paths.line(here, spot).constant(spot));
 
             return sequential(
                     parallel(

@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmode.Auto;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 import static org.firstinspires.ftc.teamcode.opmode.subsystems.Constants.flowerIntakeDown;
 import com.pedropathing.paths.Path;
 
@@ -52,7 +51,7 @@ public class AutoRobot {
     public Command followAndIntake(Path path) {
 
         return parallel(
-                follow(follower, path),
+                followOrSkip(path),
                 intake.intakeDown()
         );
 
@@ -61,7 +60,7 @@ public class AutoRobot {
     public Command followAndFlower(Path path) {
 
         return parallel(
-                follow(follower, path),
+                followOrSkip(path),
                 intake.flowerDown()
         );
 
@@ -71,7 +70,7 @@ public class AutoRobot {
     public Command followAndIntake(Path path, double delay) {
 
         return parallel(
-                follow(follower, path),
+                followOrSkip(path),
                 sequential(
                         waitMs(delay),
                         intake.intakeDown()
@@ -84,7 +83,7 @@ public class AutoRobot {
     public Command followAndFlower(Path path, double delay) {
 
         return parallel(
-                follow(follower, path),
+                followOrSkip(path),
                 sequential(
                         waitMs(delay),
                         intake.flowerDown()
@@ -98,11 +97,39 @@ public class AutoRobot {
 
         if (intake.flowerIntake.getPosition() == flowerIntakeDown) {
             return parallel(
-                    follow(follower, path),
+                    followOrSkip(path),
                     leaveFlower()
             );
         }
-        return follow(follower, path);
+        return followOrSkip(path);
+
+    }
+
+    // Like follow(), but gives up and finishes if the path hasn't made progress
+    // (completion hasn't gone up) for AutoConstants.STUCK_TIMEOUT ms, so the auto moves on.
+    public Command followOrSkip(Path path) {
+
+        double[] bestCompletion = {0};
+        long[] lastProgressTime = {0};
+
+        return Command.build()
+                .setStart(() -> {
+                    follower.follow(path);
+                    bestCompletion[0] = follower.completion();
+                    lastProgressTime[0] = System.currentTimeMillis();
+                })
+                .setDone(() -> {
+                    if (follower.atParametricEnd()) {
+                        return true;
+                    }
+                    long now = System.currentTimeMillis();
+                    double completion = follower.completion();
+                    if (completion > bestCompletion[0] + 0.01) {
+                        bestCompletion[0] = completion;
+                        lastProgressTime[0] = now;
+                    }
+                    return now - lastProgressTime[0] >= AutoConstants.STUCK_TIMEOUT;
+                });
 
     }
 
