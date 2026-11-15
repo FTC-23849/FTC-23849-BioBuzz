@@ -21,7 +21,6 @@ public class Drivetrain {
     public boolean sotm = false;
     public double tof = 0;
     ElapsedTime accelTimer = new ElapsedTime();
-    double lastVelX = 0, lastVelY = 0;
     double accelX = 0, accelY = 0;
     double filtVelX = 0, filtVelY = 0;
     double filtOmega = 0;
@@ -75,19 +74,23 @@ public class Drivetrain {
         if (sotm) {
             double velocityX = filtVelX;
             double velocityY = filtVelY;
+            double ax = accelX;
+            double ay = accelY;
             if (Math.hypot(velocityX, velocityY) < sotmVelDeadband) {
                 velocityX = 0;
                 velocityY = 0;
+                ax = 0;
+                ay = 0;
             }
             double omega = getOmega();
             double releaseHeading = heading + omega * L;
             double rx = turretPivotForward * Math.cos(Math.toRadians(releaseHeading));
             double ry = turretPivotForward * Math.sin(Math.toRadians(releaseHeading));
 
-            double releaseX = pos.getX(DistanceUnit.INCH) + velocityX * L + 0.5 * accelX * L * L + rx;
-            double releaseY = pos.getY(DistanceUnit.INCH) + velocityY * L + 0.5 * accelY * L * L + ry;
-            double releaseVelX = (velocityX + accelX * L - Math.toRadians(omega) * ry) * sotmVelScale;
-            double releaseVelY = (velocityY + accelY * L + Math.toRadians(omega) * rx) * sotmVelScale;
+            double releaseX = pos.getX(DistanceUnit.INCH) + velocityX * L + 0.5 * ax * L * L + rx;
+            double releaseY = pos.getY(DistanceUnit.INCH) + velocityY * L + 0.5 * ay * L * L + ry;
+            double releaseVelX = (velocityX + ax * L - Math.toRadians(omega) * ry) * sotmVelScale;
+            double releaseVelY = (velocityY + ay * L + Math.toRadians(omega) * rx) * sotmVelScale;
 
             double predX = releaseX + releaseVelX * sotmTimeOfFlight;
             double predY = releaseY + releaseVelY * sotmTimeOfFlight;
@@ -192,13 +195,15 @@ public class Drivetrain {
         double dt = accelTimer.seconds();
         accelTimer.reset();
         if (dt > 0) {
-            accelX += sotmAccelFilter * ((velX - lastVelX) / dt - accelX);
-            accelY += sotmAccelFilter * ((velY - lastVelY) / dt - accelY);
+            double predVelX = filtVelX + accelX * dt;
+            double predVelY = filtVelY + accelY * dt;
+            double resX = velX - predVelX;
+            double resY = velY - predVelY;
+            filtVelX = predVelX + sotmVelAlpha * resX;
+            filtVelY = predVelY + sotmVelAlpha * resY;
+            accelX += (sotmVelBeta / dt) * resX;
+            accelY += (sotmVelBeta / dt) * resY;
         }
-        lastVelX = velX;
-        lastVelY = velY;
-        filtVelX += sotmVelFilter * (velX - filtVelX);
-        filtVelY += sotmVelFilter * (velY - filtVelY);
         double omega = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES);
         filtOmega += sotmOmegaFilter * (omega - filtOmega);
     }
