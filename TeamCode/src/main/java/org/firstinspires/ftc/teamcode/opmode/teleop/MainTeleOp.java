@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.opmode.subsystems.Robot;
 public class MainTeleOp extends OpMode {
     private Robot robot;
     public static double turretPositionTesting = turretBackCenterPos;
-    public static double flywheelSpeedTesting = 1200;
-    public static double hoodPositionTesting = 0.25;
+    public static double flywheelSpeedTesting = 1400;
+    public static double hoodPositionTesting = 0.36;
     public static boolean showServoStates = false;
     public static boolean showCurrentDraw = false;
     boolean testingShooter = false;
